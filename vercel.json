@@ -12,4 +12,9 @@
             "dest": "parser/main.py"
         }
     ]
+    "functions": {
+        "api/*": {
+            "runtime": "edge"
+        }
+    }
 }
