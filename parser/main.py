@@ -1341,10 +1341,6 @@ async def stop_scraping():
     scraper.BASE_URLS.clear()  # Clear BASE_URLS to ensure the scraper stops immediately
     return {"message": "Scraping stopped"}
     
-if "VERCEL" in os.environ:
-    app = FastAPI()
-
-def handler():
-    return app
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/", tags=["Root"])
+async def read_root():
+    return {"message": "Welcome to this fantastic app!"}
