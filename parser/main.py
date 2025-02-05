@@ -1335,4 +1335,7 @@ async def stop_scraping():
     scraper.SCRAPER_RUNNING = False  # Set flag to stop scraper
     scraper.BASE_URLS.clear()  # Clear BASE_URLS to ensure the scraper stops immediately
     return {"message": "Scraping stopped"}
-
+    
+@app.get("/", tags=["Root"])
+async def read_root():
+    return {"message": "Welcome to this fantastic app!"}
