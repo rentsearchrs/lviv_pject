@@ -5,7 +5,6 @@ import logging
 import os
 import shutil
 from datetime import datetime, timedelta
-from sqlite3 import IntegrityError
 from typing import List, Optional
 from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger
 from fastapi.staticfiles import StaticFiles
@@ -920,9 +919,6 @@ async def create_team_leader(team_leader: RieltorCreate, db: AsyncSession = Depe
         new_team_leader = await crud.create_rieltor(db=db, rieltor=RieltorCreate(**team_leader_data))
         return new_team_leader
 
-    except IntegrityError:
-        await db.rollback()
-        raise HTTPException(status_code=400, detail="Username already exists")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
@@ -1084,9 +1080,6 @@ async def add_channel(channel_data: dict, db: AsyncSession = Depends(get_db)):
         db.add(new_channel)
         await db.commit()
         return {"message": "Channel added successfully"}
-    except IntegrityError:
-        await db.rollback()
-        return {"error": "A channel with this category already exists."}
     except ValueError as e:
         return {"error": f"Invalid input: {e}"}
 
