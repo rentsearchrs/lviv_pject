@@ -1,20 +1,16 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "parser/main.py",
-            "use": "@vercel/python"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "parser/main.py"
-        }
-    ],
-    "functions": {
-        "api/*": {
-            "runtime": "edge"
-        }
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
     }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ]
 }
+
