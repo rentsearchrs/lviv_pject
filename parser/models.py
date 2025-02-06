@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
-from database import Base
+from parser.database import Base
 from sqlalchemy.orm import relationship
 class Apartment(Base):
     __tablename__ = "apartments"
