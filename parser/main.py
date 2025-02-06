@@ -37,20 +37,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# ✅ Define allowed origins (frontend URLs)
-origins = [
-    "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend app URL
-    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app"
-]
 
-# ✅ Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # ✅ Allow only specific origins
-    allow_credentials=True,
-    allow_methods=["*"],  # ✅ Allow all HTTP methods (GET, POST, PUT, DELETE)
-    allow_headers=["*"],  # ✅ Allow all headers
-)
 # Endpoint to fetch all apartments from DB
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
