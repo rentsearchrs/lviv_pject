@@ -5,7 +5,7 @@ import logging
 import os
 import shutil
 from datetime import datetime, timedelta
-
+from mangum import Mangum
 from typing import List, Optional
 from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger
 from fastapi.staticfiles import StaticFiles
@@ -1276,3 +1276,4 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 async def read_root():
     return {"message": "Welcome to this fantastic app!"}
 
+handler = Mangum(app)
