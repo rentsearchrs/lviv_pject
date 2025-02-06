@@ -9,8 +9,12 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "parser/main.py"      
+            "dest": "parser/main.py",
+            "headers": {
+                "Access-Control-Allow-Origin": "https://app-lemon-beta-90.vercel.app",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*"
+            }
         }
     ]
 }
-
