@@ -13,9 +13,9 @@ from telegram.ext import (
 )
 import os
 from dotenv import load_dotenv
-from crud import get_apartments_by_realtor, update_apartment_fix_fields, create_or_update_apartment
-from models import Order, SubscribedChat, TeamLeed
-from database import SessionLocal, get_db
+from parser.crud import get_apartments_by_realtor, update_apartment_fix_fields, create_or_update_apartment
+from parser.models import Order, SubscribedChat, TeamLeed
+from parser.database import SessionLocal, get_db
 import shutil
 from datetime import datetime
 import asyncio

@@ -9,14 +9,14 @@ from datetime import datetime
 from sqlalchemy import Float, String, and_, cast, func, or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from telegram import Bot, InputMediaPhoto
-from database import get_db
+from parser.database import get_db
 
-from models import Apartment,  File_apartment, Order, Rieltor, StopWord, TeamLeed, TelegramChannel, Template, TrapBlacklist
+from parser.models import Apartment,  File_apartment, Order, Rieltor, StopWord, TeamLeed, TelegramChannel, Template, TrapBlacklist
 from sqlalchemy.future import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.exc import SQLAlchemyError
 from passlib.context import CryptContext
-from schemas import ApartmentResponse, FileResponse, ImageOrderUpdate, RieltorCreate, RieltorSchema
+from parser.schemas import ApartmentResponse, FileResponse, ImageOrderUpdate, RieltorCreate, RieltorSchema
 
 async def create_or_update_apartment(db: AsyncSession, apartment_data):
     try:

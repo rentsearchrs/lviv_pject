@@ -2,7 +2,7 @@ import logging
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from database import get_dbb
+from parser.database import get_dbb
 import crud
 
 async def check_relevance():

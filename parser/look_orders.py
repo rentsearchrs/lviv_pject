@@ -1,13 +1,13 @@
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import func
-from database import SessionLocal
+from parser.database import SessionLocal
 
 from celery import Celery
 
 from sqlalchemy.future import select
 
-from models import Order, TeamLeed
+from parser.models import Order, TeamLeed
 
   
 

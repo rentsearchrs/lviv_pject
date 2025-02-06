@@ -3,8 +3,8 @@ from asgiref.sync import async_to_sync
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
-from database import DATABASE_URL
-from models import Apartment, Rieltor
+from parser.database import DATABASE_URL
+from parser.models import Apartment, Rieltor
 
 app = Celery(
     "tasks",
