@@ -39,7 +39,6 @@ app = FastAPI()
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
     "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",
-    "http://127.0.0.1:8000",
 ]
 
 app.add_middleware(
