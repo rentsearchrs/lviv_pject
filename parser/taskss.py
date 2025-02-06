@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from parser.database import get_dbb
-import crud
+import parser.crud as crud
 
 async def check_relevance():
     """

@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.common.by import By
 import asyncio
-import crud
+import parser.crud as crud
 import re
 from parser.database import get_db
 from datetime import datetime
