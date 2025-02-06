@@ -13,11 +13,12 @@
         {
             "src": "/(.*)",
             "dest": "parser/main.py",
-            "headers": [
-                { "key": "Access-Control-Allow-Origin", "value": "https://app-lemon-beta-90.vercel.app" },
-                { "key": "Access-Control-Allow-Methods", "value": "*" },
-                { "key": "Access-Control-Allow-Headers", "value": "*" }
-            ]
+            "headers": {
+                "Access-Control-Allow-Origin": "https://app-lemon-beta-90.vercel.app, https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*"
+            }
         }
     ]
 }
+
