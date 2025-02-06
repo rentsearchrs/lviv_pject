@@ -26,13 +26,14 @@ from contextlib import asynccontextmanager
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from dotenv import load_dotenv
-
+import tempfile
 load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 IMAGE_DIR = "images"
+IMAGE_DIR = tempfile.gettempdir()
 os.makedirs(IMAGE_DIR, exist_ok=True)
 app = FastAPI()
 app.mount("/images", StaticFiles(directory="images"), name="images")
