@@ -32,9 +32,10 @@ load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-IMAGE_DIR = "images"
-IMAGE_DIR = tempfile.gettempdir()
-os.makedirs(IMAGE_DIR, exist_ok=True)
+IMAGE_DIR = "/tmp/images"  # Temporary storage for serverless environments
+
+if not os.path.exists(IMAGE_DIR):
+    os.makedirs(IMAGE_DIR, exist_ok=True)  # Create only if writable
 app = FastAPI()
 app.mount("/images", StaticFiles(directory="images"), name="images")
 app.add_middleware(
