@@ -12,7 +12,11 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "parser/main.py"
+            "dest": "parser/main.py",
+            "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            "headers": {
+              "Access-Control-Allow-Origin": "https://app-lemon-beta-90.vercel.app, https://lviv-pject-git-main-rentsearchrs-projects.vercel.app"
+            }            
         }
     ]
 }
