@@ -18,7 +18,6 @@ from parser.database import get_db, get_dbb, init_db
 from parser.decode_token import create_access_token, decode_token
 from parser.models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
 from parser.schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
-import parser.scraper as scraper
 import parser.crud as crud
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
@@ -538,14 +537,7 @@ async def reorder_images(apartment_id: int, order_updates: List[ImageOrderUpdate
     return {"message": "Image order updated successfully"}
 
 
-# Background scraping task (runs on startup)
-@app.on_event("startup")
-async def startup_event():
-    # Await the init_db() function to initialize the database
-    await init_db()
-    
-    # Start scraping in the background
-    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Corrected to only pass total_pages
+
 @asynccontextmanager
 async def get_async_db():
     """This helper context manager correctly handles async generator for database session."""
@@ -1313,30 +1305,7 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 
     await db.commit()
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
-@app.get("/start_scraping/")
-async def start_scraping(background_tasks: BackgroundTasks):
-    """Start the scraper in the background."""
-    global scraper
 
-    if scraper.SCRAPER_RUNNING:
-        return {"message": "Scraper is already running"}
-
-    scraper.SCRAPER_RUNNING = True
-    background_tasks.add_task(scraper.scrape_and_save, 10)  # Run scraper for 10 pages
-    return {"message": "Scraping started"}
-
-@app.get("/stop_scraping/")
-async def stop_scraping():
-    """Stop the scraper dynamically."""
-    global scraper
-
-    if not scraper.SCRAPER_RUNNING:
-        return {"message": "Scraper is not running"}
-
-    scraper.SCRAPER_RUNNING = False  # Set flag to stop scraper
-    scraper.BASE_URLS.clear()  # Clear BASE_URLS to ensure the scraper stops immediately
-    return {"message": "Scraping stopped"}
-    
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Welcome to this fantastic app!"}
