@@ -18,7 +18,8 @@ from parser.database import get_db, get_dbb, init_db
 from parser.decode_token import create_access_token, decode_token
 from parser.models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
 from parser.schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
-import scraper, crud
+import parser.scraper as scraper
+import parser.crud as crud
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
