@@ -34,11 +34,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
 app = FastAPI()
 
+origins = [
+    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",  # ✅ Backend (optional)
+    "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend
+]
 
-# Endpoint to fetch all apartments from DB
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # ✅ Use a list (not multiple values in a single string)
+    allow_credentials=True,
+    allow_methods=["*"],  # ✅ Allow all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # ✅ Allow all headers
+)# Endpoint to fetch all apartments from DB
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
     # Use `selectinload` to load relationships asynchronously
