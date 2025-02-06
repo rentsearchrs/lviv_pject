@@ -14,10 +14,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from parser.auth import verify_password
-from database import get_db, get_dbb, init_db
-from decode_token import create_access_token, decode_token
-from models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
-from schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
+from parser.database import get_db, get_dbb, init_db
+from parser.decode_token import create_access_token, decode_token
+from parser.models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
+from parser.schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
 import scraper, crud
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
