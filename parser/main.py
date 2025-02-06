@@ -13,7 +13,7 @@ import jwt
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
-from auth import verify_password
+from parser.auth import verify_password
 from database import get_db, get_dbb, init_db
 from decode_token import create_access_token, decode_token
 from models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
