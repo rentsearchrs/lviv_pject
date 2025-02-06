@@ -38,7 +38,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Change this to specific origins for security
+    allow_origins=["https://app-lemon-beta-90.vercel.app"],  # Change this to specific origins for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
