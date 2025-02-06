@@ -1274,6 +1274,11 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Welcome to this fantastic app!"}
+from mangum import Mangum  # ASGI adapter for AWS Lambda/Vercel
+
+handler = Mangum(app)
+
+
 # Required for Vercel
 if __name__ == "__main__":
     import uvicorn
