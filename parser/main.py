@@ -40,7 +40,7 @@ app = FastAPI()
 # ✅ Define allowed origins (frontend URLs)
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend app URL
-    "https://app-rentsearchrs-projects.vercel.app"
+    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app"
 ]
 
 # ✅ Add CORS middleware
