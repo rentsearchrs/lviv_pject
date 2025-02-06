@@ -36,6 +36,19 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+origins = [
+    "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
+    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    
+)
 
 
 #@app.get("/apartments/")
