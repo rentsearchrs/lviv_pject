@@ -36,13 +36,21 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+origins = [
+    "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
+    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://app-lemon-beta-90.vercel.app"],  # Change this to specific origins for security
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
+
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
     # Use `selectinload` to load relationships asynchronously
