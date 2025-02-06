@@ -17,22 +17,8 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False  # Disable hostname verification
 ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
-# Create async engine with SSL context
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,  # Log all SQL statements (useful for debugging; disable in production)
-    connect_args={"ssl": ssl_context},
-    future=True
-)
-
-# Configure session factory
-SessionLocal = sessionmaker(
-    autocommit=False,  # Transactions must be explicitly committed
-    autoflush=False,   # Avoid automatic state flushing
-    bind=engine,       # Bind to the async engine
-    class_=AsyncSession, # Use async session class
-    expire_on_commit=False
-)
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
 # Define Base for models
 Base = declarative_base()
