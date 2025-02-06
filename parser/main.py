@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 origins = [
-    "https://lviv-pject-git-main-rentsearchrs-projects.vercel.app",  # ✅ Backend (optional)
+    "http://localhost:3000",
     "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend
 ]
 
