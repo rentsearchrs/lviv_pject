@@ -36,18 +36,13 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # ✅ Use a list (not multiple values in a single string)
+    allow_origins=["*"],  # Change this to specific origins for security
     allow_credentials=True,
-    allow_methods=["*"],  # ✅ Allow all methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # ✅ Allow all headers
-)# Endpoint to fetch all apartments from DB
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
     # Use `selectinload` to load relationships asynchronously
