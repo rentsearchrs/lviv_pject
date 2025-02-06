@@ -40,8 +40,7 @@ app = FastAPI()
 # ✅ Define allowed origins (frontend URLs)
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # ✅ Your frontend app URL
-    "http://localhost:3000",  # ✅ Allow local dev testing
-    "http://127.0.0.1:3000",
+    "https://app-rentsearchrs-projects.vercel.app"
 ]
 
 # ✅ Add CORS middleware
