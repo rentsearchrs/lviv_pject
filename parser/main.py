@@ -33,10 +33,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+router = APIRouter()
 
 
-
-#@app.get("/apartments/")
+#@router.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
     # Use `selectinload` to load relationships asynchronously
 #    result = await db.execute(
@@ -47,12 +47,12 @@ logger = logging.getLogger(__name__)
 
 
 # Endpoint to fetch apartments by status
-@app.get("/apartments/{status}")
+@router.get("/apartments/{status}")
 async def get_apartments_by_status(status: str, db: AsyncSession = Depends(get_db)):
     apartments = await crud.get_apartments_by_status(db, status)
     return apartments
 
-@app.put("/apartments/{apartment_id}/status")
+@router.put("/apartments/{apartment_id}/status")
 async def update_apartment_status(apartment_id: int, new_status: str = Query(...), db: AsyncSession = Depends(get_db)):
     if new_status not in ["new", "activation_soon", "inactive", "successful", "spam"]:
         raise HTTPException(status_code=400, detail="Invalid status")
@@ -61,7 +61,7 @@ async def update_apartment_status(apartment_id: int, new_status: str = Query(...
     return {"message": "Status updated successfully"}
 
 
-@app.put("/get_orders_and_photo_all/{apartment_id}/status")
+@router.put("/get_orders_and_photo_all/{apartment_id}/status")
 async def update_apartment_status_all(
     apartment_id: int, 
     new_status: str = Query(...), 
@@ -86,7 +86,7 @@ async def update_apartment_status_all(
 
 
 
-@app.put("/get_orders/{order_id}/status")
+@router.put("/get_orders/{order_id}/status")
 async def update_order_status(order_id: int, new_status: str, db: AsyncSession = Depends(get_db)):
     try:
         # Fetch the order by ID
@@ -113,7 +113,7 @@ async def update_order_status(order_id: int, new_status: str, db: AsyncSession =
         logger.error(f"Unexpected error during status update: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
     
-@app.put("/get_orders/{order_id}/status")
+@router.put("/get_orders/{order_id}/status")
 async def update_order_status(
     order_id: int, 
     new_status: str, 
@@ -150,7 +150,7 @@ async def update_order_status(
 
 
 
-@app.get("/get_orders/", response_model=List[OrderResponse])
+@router.get("/get_orders/", response_model=List[OrderResponse])
 async def get_orders(
     realtor_id: int = Query(...),  # Pass realtor_id as a query parameter
     db: AsyncSession = Depends(get_db)
@@ -173,7 +173,7 @@ async def get_orders(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
-@app.post("/orders/")
+@router.post("/orders/")
 async def create_order_endpoint(order: OrderCreate, db: AsyncSession = Depends(get_db)):
     logger.info(f"Received order request: {order}")
     try:
@@ -198,7 +198,7 @@ async def create_order_endpoint(order: OrderCreate, db: AsyncSession = Depends(g
         logger.error(f"Error while creating order: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
-@app.get("/team_leader/orders/", response_model=List[OrderResponse])
+@router.get("/team_leader/orders/", response_model=List[OrderResponse])
 async def get_unassigned_orders(
     team_leader_id: int = Query(...),  # Pass team_leader_id as a query parameter
     db: AsyncSession = Depends(get_db)
@@ -220,7 +220,7 @@ async def get_unassigned_orders(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching realtors: {str(e)}")
-@app.get("/team_leaders/realtors", response_model=List[RieltorResponsee])
+@router.get("/team_leaders/realtors", response_model=List[RieltorResponsee])
 async def get_team_leader_realtors(
     team_leader_id: int = Query(...),
     db: AsyncSession = Depends(get_db)
@@ -242,7 +242,7 @@ async def get_team_leader_realtors(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching realtors: {str(e)}")
-@app.put("/orders/{order_id}/assign")
+@router.put("/orders/{order_id}/assign")
 async def assign_order_to_realtor(order_id: int, realtor_id: int, db: AsyncSession = Depends(get_db)):
     try:
         stmt = select(Order).where(Order.id == order_id)
@@ -259,7 +259,7 @@ async def assign_order_to_realtor(order_id: int, realtor_id: int, db: AsyncSessi
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning order: {str(e)}")
 
-@app.put("/team_leader/orders/{order_id}/assign/")
+@router.put("/team_leader/orders/{order_id}/assign/")
 async def assign_order_to_realtor(
     order_id: int,
     realtor_id: int = Query(...),  # Pass realtor_id as a query parameter
@@ -283,7 +283,7 @@ async def assign_order_to_realtor(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning order: {str(e)}")
-@app.get("/team_leader/{team_leader_id}/combined-stats", response_model=dict)
+@router.get("/team_leader/{team_leader_id}/combined-stats", response_model=dict)
 async def get_combined_team_leader_stats(
     team_leader_id: int, db: AsyncSession = Depends(get_db)
 ):
@@ -360,17 +360,17 @@ async def get_combined_team_leader_stats(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching combined stats: {str(e)}")
-@app.get("/get_orders_and_photo/", response_model=List[ApartmentResponse])
+@router.get("/get_orders_and_photo/", response_model=List[ApartmentResponse])
 async def read_orders(request: Request, db: AsyncSession = Depends(get_db)):
     apartments = await crud.get_all_apartments_and_photo(db, request)
     return apartments
 
-@app.get("/get_orders_and_photo_all/", response_model=List[ApartmentResponse])
+@router.get("/get_orders_and_photo_all/", response_model=List[ApartmentResponse])
 async def read_orders(request: Request, db: AsyncSession = Depends(get_db)):
     apartments = await crud.get_all_apartments_and_photo_all(db, request)
     return apartments
 
-@app.get("/get_apartment_and_photo/{apartment_id}", response_model=ApartmentResponse)
+@router.get("/get_apartment_and_photo/{apartment_id}", response_model=ApartmentResponse)
 async def read_apartment(apartment_id: int, db: AsyncSession = Depends(get_db)):
     apartment = await crud.get_apartment_by_id(db, apartment_id)
     if not apartment:
@@ -407,7 +407,7 @@ def add_watermark(input_image_path, output_image_path, watermark_text="Watermark
     combined = combined.convert("RGB")
     combined.save(output_image_path)
 
-@app.put("/apartments/{apartment_id}/apply_watermark/{image_id}")
+@router.put("/apartments/{apartment_id}/apply_watermark/{image_id}")
 async def apply_watermark_to_existing_image(apartment_id: int, image_id: int, db: AsyncSession = Depends(get_db)):
     # Fetch the image from the database
     result = await db.execute(select(File_apartment).where(File_apartment.id == image_id))
@@ -435,7 +435,7 @@ async def apply_watermark_to_existing_image(apartment_id: int, image_id: int, db
         raise HTTPException(status_code=500, detail=f"Error applying watermark: {e}")
 
 
-@app.post("/apartments/{apartment_id}/upload_images", response_model=List[FileApartmentResponse])
+@router.post("/apartments/{apartment_id}/upload_images", response_model=List[FileApartmentResponse])
 async def upload_images(apartment_id: int, files: List[UploadFile] = File(...), db: AsyncSession = Depends(get_db)):
     uploaded_images = []
     for idx, file in enumerate(files):
@@ -457,7 +457,7 @@ async def upload_images(apartment_id: int, files: List[UploadFile] = File(...), 
         db_image = await crud.add_image_to_apartment(db=db, apartment_id=apartment_id, image_data=image_data)
         uploaded_images.append(db_image)
     return uploaded_images
-@app.delete("/images/{image_id}", status_code=204)
+@router.delete("/images/{image_id}", status_code=204)
 async def delete_image(image_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(File_apartment).where(File_apartment.id == image_id))
     db_image = result.scalars().first()
@@ -474,7 +474,7 @@ async def delete_image(image_id: int, db: AsyncSession = Depends(get_db)):
     
     raise HTTPException(status_code=404, detail="Image not found")
 
-@app.put("/apartments/{apartment_id}/reorder_images")
+@router.put("/apartments/{apartment_id}/reorder_images")
 async def reorder_images(apartment_id: int, order_updates: List[ImageOrderUpdate], db: AsyncSession = Depends(get_db)):
     for update in order_updates:
         result = await db.execute(select(File_apartment).where(File_apartment.id == update.image_id))
@@ -507,7 +507,7 @@ async def get_async_db():
 
 
 
-@app.put("/apartments/{apartment_id}/update_fix_fields")
+@router.put("/apartments/{apartment_id}/update_fix_fields")
 async def update_fix_fields(apartment_id: int, update_data: dict, db: AsyncSession = Depends(get_db)):
     updated_apartment = await crud.update_apartment_fix_fields(db, apartment_id, update_data)
     if not updated_apartment:
@@ -529,7 +529,7 @@ async def get_template_text(db: AsyncSession, template_name: str = "telegram") -
     return template.template_text
 
 
-@app.post("/get_orders_and_photo/publish_to_channel/{apartment_id}")
+@router.post("/get_orders_and_photo/publish_to_channel/{apartment_id}")
 async def publish_to_channel(apartment_id: int, db: AsyncSession = Depends(get_db), template_name: str = "telegram"):
     # Fetch the apartment and ensure it exists
     result = await db.execute(
@@ -561,12 +561,12 @@ async def publish_to_channel(apartment_id: int, db: AsyncSession = Depends(get_d
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
-@app.get("/templates")
+@router.get("/templates")
 async def get_templates(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Template))
     return result.scalars().all()
 
-@app.post("/templates")
+@router.post("/templates")
 async def create_template(template_data: dict, db: AsyncSession = Depends(get_db)):
     new_template = Template(**template_data)
     db.add(new_template)
@@ -574,7 +574,7 @@ async def create_template(template_data: dict, db: AsyncSession = Depends(get_db
     await db.refresh(new_template)
     return new_template
 
-@app.put("/templates/{template_id}")
+@router.put("/templates/{template_id}")
 async def update_template(template_id: int, template_data: dict, db: AsyncSession = Depends(get_db)):
     stmt = select(Template).where(Template.id == template_id)
     result = await db.execute(stmt)
@@ -587,7 +587,7 @@ async def update_template(template_id: int, template_data: dict, db: AsyncSessio
     await db.refresh(template)
     return template
 
-@app.delete("/templates/{template_id}")
+@router.delete("/templates/{template_id}")
 async def delete_template(template_id: int, db: AsyncSession = Depends(get_db)):
     stmt = select(Template).where(Template.id == template_id)
     result = await db.execute(stmt)
@@ -600,7 +600,7 @@ async def delete_template(template_id: int, db: AsyncSession = Depends(get_db)):
 
 
 
-@app.get("/templates/{template_name}")
+@router.get("/templates/{template_name}")
 async def get_template(template_name: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Template).where(Template.name == template_name))
     template = result.scalar_one_or_none()
@@ -616,7 +616,7 @@ async def get_template(template_name: str, db: AsyncSession = Depends(get_db)):
 
 
 
-@app.get("/search_apartments/")
+@router.get("/search_apartments/")
 async def search_apartments(
     db: AsyncSession = Depends(get_db),
     keyword: Optional[str] = None,
@@ -645,7 +645,7 @@ async def search_apartments(
 
 
 
-@app.post("/login")
+@router.post("/login")
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
@@ -681,7 +681,7 @@ async def login(
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
 
-@app.post("/users/", response_model=RieltorSchema)
+@router.post("/users/", response_model=RieltorSchema)
 async def create_user(user: RieltorCreate, db: AsyncSession = Depends(get_db)):
     existing_user = await crud.get_rieltor_by_username(db, username=user.username)  # Await the async function
     if existing_user:
@@ -695,25 +695,25 @@ async def create_user(user: RieltorCreate, db: AsyncSession = Depends(get_db)):
 
 
 
-@app.post("/assign_apartment/{apartment_id}")
+@router.post("/assign_apartment/{apartment_id}")
 async def assign_apartment(apartment_id: int, db: AsyncSession = Depends(get_db)):
     apartment = await crud.assign_apartment_to_agent(db, apartment_id)
     return {"status": "success", "message": f"Apartment assigned to Rieltor {apartment.rieltor_id}"}
 
-@app.put("/apartments/{apartment_id}/follow_up")
+@router.put("/apartments/{apartment_id}/follow_up")
 async def follow_up(apartment_id: int, db: AsyncSession = Depends(get_db)):
     updated_apartment = await crud.update_contact_dates(db, apartment_id)
     return {"status": "success", "message": "Contact dates updated", "apartment": updated_apartment}
 
 
-@app.put("/apartments/{apartment_id}/set_lease")
+@router.put("/apartments/{apartment_id}/set_lease")
 async def set_lease(apartment_id: int, lease_months: int, db: AsyncSession = Depends(get_db)):
     apartment = await crud.update_lease_end_date(db, apartment_id, lease_months)
     return {"status": "success", "message": "Lease end date updated", "apartment": apartment}
 
 from sqlalchemy.orm import joinedload, selectinload
 
-@app.get("/agents/{agent_id}/apartments/")
+@router.get("/agents/{agent_id}/apartments/")
 async def get_agent_apartments(
     agent_id: int,
     apartment_id: Optional[int] = Query(None),
@@ -739,7 +739,7 @@ async def get_agent_apartments(
 
 
 
-@app.get("/agents/{agent_id}/notifications/")
+@router.get("/agents/{agent_id}/notifications/")
 async def get_agent_notifications(agent_id: int, db: AsyncSession = Depends(get_db)):
     today = datetime.now()
     one_week_later = today + timedelta(days=7)
@@ -760,7 +760,7 @@ async def get_agent_notifications(agent_id: int, db: AsyncSession = Depends(get_
     return {"notifications": notifications}
 
 
-@app.put("/apartments/{apartment_id}/contacted")
+@router.put("/apartments/{apartment_id}/contacted")
 async def mark_apartment_contacted(apartment_id: int, db: AsyncSession = Depends(get_db)):
     stmt = select(Apartment).where(Apartment.id == apartment_id)
     result = await db.execute(stmt)
@@ -774,7 +774,7 @@ async def mark_apartment_contacted(apartment_id: int, db: AsyncSession = Depends
     await db.commit()
     return {"message": "Apartment marked as contacted"}
 
-@app.put("/apartments/{apartment_id}/archive")
+@router.put("/apartments/{apartment_id}/archive")
 async def archive_apartment(apartment_id: int, db: AsyncSession = Depends(get_db)):
     stmt = select(Apartment).where(Apartment.id == apartment_id)
     result = await db.execute(stmt)
@@ -788,7 +788,7 @@ async def archive_apartment(apartment_id: int, db: AsyncSession = Depends(get_db
     return {"message": "Apartment archived successfully"}
 
 
-@app.get("/agents/me/apartments/")
+@router.get("/agents/me/apartments/")
 async def get_my_apartments(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     try:
         agent_id = int(decode_token(token))
@@ -800,7 +800,7 @@ async def get_my_apartments(token: str = Depends(oauth2_scheme), db: AsyncSessio
     apartments = result.scalars().all()
     return apartments
 
-@app.post("/assign_apartments/auto")
+@router.post("/assign_apartments/auto")
 def auto_assign_apartments_endpoint():
     """
     Endpoint to trigger the auto-assign Celery task.
@@ -810,7 +810,7 @@ def auto_assign_apartments_endpoint():
     return {"message": "Auto-assignment task triggered"}
 
 
-@app.get("/realtors/", response_model=list[RieltorResponse])
+@router.get("/realtors/", response_model=list[RieltorResponse])
 async def read_realtors(db: AsyncSession = Depends(get_db)):
     realtors = await crud.get_all_realtors(db)
     return realtors
@@ -819,7 +819,7 @@ async def read_realtors(db: AsyncSession = Depends(get_db)):
 
 from fastapi import Query
 
-@app.post("/assign_team_leader/")
+@router.post("/assign_team_leader/")
 async def assign_team_leader(
     request: AssignTeamLeaderRequest,
     db: AsyncSession = Depends(get_db)
@@ -831,13 +831,13 @@ async def assign_team_leader(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@app.get("/team_leaders/", response_model=List[RieltorResponse])
+@router.get("/team_leaders/", response_model=List[RieltorResponse])
 async def get_team_leaders(db: AsyncSession = Depends(get_db)):
     team_leaders = await crud.get_team_leaders(db)
     return [RieltorResponse.from_orm(tl) for tl in team_leaders]
 
 
-@app.get("/team_leader/{team_leader_id}/realtors")
+@router.get("/team_leader/{team_leader_id}/realtors")
 async def get_team_leader_realtors(
     team_leader_id: int,
     db: AsyncSession = Depends(get_db)
@@ -853,7 +853,7 @@ async def get_team_leader_realtors(
 
 
 
-@app.post("/team_leaders/", response_model=RieltorSchema)
+@router.post("/team_leaders/", response_model=RieltorSchema)
 async def create_team_leader(team_leader: RieltorCreate, db: AsyncSession = Depends(get_db)):
     try:
         # Ensure the team leader type is "team_leader"
@@ -869,7 +869,7 @@ async def create_team_leader(team_leader: RieltorCreate, db: AsyncSession = Depe
     
 
 
-@app.post("/team_leader/create")
+@router.post("/team_leader/create")
 async def create_team_leader(
     username: str,
     password: str,
@@ -884,7 +884,7 @@ async def create_team_leader(
 
 
 
-@app.get("/team_leader/{team_leader_id}/realtors-stats")
+@router.get("/team_leader/{team_leader_id}/realtors-stats")
 async def get_team_leader_realtor_stats(team_leader_id: int, db: AsyncSession = Depends(get_db)):
     try:
         # Ensure the team leader exists
@@ -964,7 +964,7 @@ async def get_team_leader_realtor_stats(team_leader_id: int, db: AsyncSession = 
         logger.error(f"Error fetching realtor stats: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching realtor stats: {e}")
 
-@app.get("/order_statistics/")
+@router.get("/order_statistics/")
 async def get_order_statistics(realtor_id: int, db: AsyncSession = Depends(get_db)):
     try:
         # Fetch order statistics for a specific realtor
@@ -999,13 +999,13 @@ async def get_order_statistics(realtor_id: int, db: AsyncSession = Depends(get_d
     
 
 # ✅ Fetch all channels
-@app.get("/telegram_channels")
+@router.get("/telegram_channels")
 async def get_channels(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TelegramChannel))
     return result.scalars().all()
 
 
-@app.post("/telegram_channels")
+@router.post("/telegram_channels")
 async def add_channel(channel_data: dict, db: AsyncSession = Depends(get_db)):
     try:
         # Extract fields and cast them to correct types
@@ -1030,7 +1030,7 @@ async def add_channel(channel_data: dict, db: AsyncSession = Depends(get_db)):
         return {"error": f"Invalid input: {e}"}
 
 # ✅ Delete a channel
-@app.delete("/telegram_channels/{channel_id}")
+@router.delete("/telegram_channels/{channel_id}")
 async def delete_channel(channel_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TelegramChannel).filter(TelegramChannel.id == channel_id))
     channel = result.scalar_one_or_none()
@@ -1041,7 +1041,7 @@ async def delete_channel(channel_id: int, db: AsyncSession = Depends(get_db)):
     return {"error": "Channel not found"}
 
 
-@app.put("/apartments/{apartment_id}/status")
+@router.put("/apartments/{apartment_id}/status")
 async def update_apartment_status(apartment_id: int, new_status: str, db: AsyncSession = Depends(get_db)):
     # ✅ Auto-send based on the new status
     return await crud.send_ad_to_telegram(db, apartment_id)
@@ -1053,13 +1053,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 scheduler = AsyncIOScheduler()
 
 # ✅ Fetch all Telegram channels
-@app.get("/telegram_channels")
+@router.get("/telegram_channels")
 async def get_channels(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TelegramChannel))
     return result.scalars().all()
 
 
-@app.post("/telegram_channels")
+@router.post("/telegram_channels")
 async def add_channel(channel_data: dict, db: AsyncSession = Depends(get_db)):
     existing_channel = await db.execute(
         select(TelegramChannel).filter(TelegramChannel.category == channel_data["category"])
@@ -1076,7 +1076,7 @@ async def add_channel(channel_data: dict, db: AsyncSession = Depends(get_db)):
         await db.rollback()
         return {"error": f"Error adding channel: {str(e)}"}
 
-@app.delete("/telegram_channels/{channel_id}")
+@router.delete("/telegram_channels/{channel_id}")
 async def delete_channel(channel_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TelegramChannel).filter(TelegramChannel.id == channel_id))
     channel = result.scalar_one_or_none()
@@ -1086,7 +1086,7 @@ async def delete_channel(channel_id: int, db: AsyncSession = Depends(get_db)):
         return {"message": "Channel deleted successfully"}
     return {"error": "Channel not found"}
 
-@app.put("/apartments/{apartment_id}/status")
+@router.put("/apartments/{apartment_id}/status")
 async def update_apartment_status(apartment_id: int, new_status: str, db: AsyncSession = Depends(get_db)):
     return await crud.send_ad_to_telegram(db, apartment_id)
 
@@ -1122,7 +1122,7 @@ async def automated_telegram_posting():
         except Exception as e:
             logging.error(f"❌ Error during auto-posting: {e}")
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def start_scheduler():
     """
     Start the APScheduler when the application starts.
@@ -1142,7 +1142,7 @@ async def start_scheduler():
         TELEGRAM_POSTING_RUNNING = True  # Set the flag when scheduler starts
         logging.info("✅ Auto-posting scheduler started.")
 
-@app.get("/start_autoposting/")
+@router.get("/start_autoposting/")
 async def start_autoposting():
     """Start automated Telegram posting via API"""
     global TELEGRAM_POSTING_RUNNING
@@ -1154,7 +1154,7 @@ async def start_autoposting():
     scheduler.resume_job("auto_posting_job")  # Resume the job if paused
     return {"message": "Auto-posting started"}
 
-@app.get("/stop_autoposting/")
+@router.get("/stop_autoposting/")
 async def stop_autoposting():
     """Stop automated Telegram posting via API"""
     global TELEGRAM_POSTING_RUNNING
@@ -1165,7 +1165,7 @@ async def stop_autoposting():
     TELEGRAM_POSTING_RUNNING = False
     scheduler.pause_job("auto_posting_job")  # Pause the job instead of stopping it
     return {"message": "Auto-posting stopped"}
-@app.get("/realtor/me", response_model=RieltorResponse)
+@router.get("/realtor/me", response_model=RieltorResponse)
 async def get_realtor_info(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     """
     Fetch the currently logged-in realtor's information.
@@ -1186,20 +1186,20 @@ async def get_realtor_info(token: str = Depends(oauth2_scheme), db: AsyncSession
     
 class WordModel(BaseModel):
     word: str  
-@app.post("/admin/add_trap/")
+@router.post("/admin/add_trap/")
 async def add_trap_word(data: WordModel, db: AsyncSession = Depends(get_db)):
     new_trap = TrapBlacklist(keyword=data.word.lower())
     db.add(new_trap)
     await db.commit()
     return {"message": f"Added '{data.word}' to blacklist"}
-@app.post("/admin/add_stop_word/")
+@router.post("/admin/add_stop_word/")
 async def add_stop_word(data: WordModel, db: AsyncSession = Depends(get_db)):
     new_word = StopWord(word=data.word.lower())
     db.add(new_word)
     await db.commit()
     return {"message": f"Added '{data.word}' to stop words"}
 
-@app.delete("/admin/remove_trap/{word}")
+@router.delete("/admin/remove_trap/{word}")
 async def remove_trap_word(word: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TrapBlacklist).where(TrapBlacklist.keyword == word.lower()))
     trap = result.scalar_one_or_none()
@@ -1210,7 +1210,7 @@ async def remove_trap_word(word: str, db: AsyncSession = Depends(get_db)):
         return {"message": f"Removed '{word}' from blacklist"}
     
     raise HTTPException(status_code=404, detail="Word not found")
-@app.delete("/admin/remove_trap/{word}")
+@router.delete("/admin/remove_trap/{word}")
 async def remove_trap_word(word: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TrapBlacklist).where(TrapBlacklist.keyword == word.lower()))
     trap = result.scalar_one_or_none()
@@ -1221,7 +1221,7 @@ async def remove_trap_word(word: str, db: AsyncSession = Depends(get_db)):
         return {"message": f"Removed '{word}' from blacklist"}
     
     raise HTTPException(status_code=404, detail="Word not found")
-@app.delete("/admin/remove_stop_word/{word}")
+@router.delete("/admin/remove_stop_word/{word}")
 async def remove_stop_word(word: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(StopWord).where(StopWord.word == word.lower()))
     stop_word = result.scalar_one_or_none()
@@ -1233,12 +1233,12 @@ async def remove_stop_word(word: str, db: AsyncSession = Depends(get_db)):
     
     raise HTTPException(status_code=404, detail="Word not found")
 
-@app.get("/admin/verification_ads/")
+@router.get("/admin/verification_ads/")
 async def get_verification_ads(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Apartment).where(Apartment.requires_verification == True))
     apartments = result.scalars().all()
     return apartments
-@app.put("/admin/verify_ad/{apartment_id}")
+@router.put("/admin/verify_ad/{apartment_id}")
 async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Apartment).where(Apartment.id == apartment_id))
     apartment = result.scalar_one_or_none()
@@ -1257,22 +1257,24 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
     await db.commit()
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
 
-@app.get("/", tags=["Root"])
+@router.get("/", tags=["Root"])
 async def read_root():
-    return {"message": "Welcome to this fantastic app!"}
+    return {"message": "Welcome to this fantastic router!"}
 
-app = FastAPI()
+router = FastAPI()
 
 # Allowed origins (frontend URL)
 origins = [
-    "https://app-lemon-beta-90.vercel.app",  # Angular frontend
+    "https://router-lemon-beta-90.vercel.router",  # Angular frontend
     "http://localhost:3000",  # Local Angular development
 ]
 
-app.add_middleware(
+router.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # Allow only specific frontend origins
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Allow all headers
 )
+
+router.include_router(router)
