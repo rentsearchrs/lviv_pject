@@ -42,9 +42,10 @@ async def get_db():
             yield db
         except Exception as e:
             logging.error(f"❌ Error in database session: {e}")
+            await db.rollback()
             raise
         finally:
-            await db.close()  # Ensure session is always closed
+            await db.close()
             
 @asynccontextmanager
 async def get_dbb():
