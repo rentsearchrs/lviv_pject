@@ -1,22 +1,31 @@
-import asyncio
+from collections import defaultdict
+from datetime import datetime
 import logging
 import os
-from sched import scheduler
-from typing import Dict, List, Optional, Union
-from fastapi import HTTPException, Request, logger
-from datetime import datetime
-
-from sqlalchemy import Float, String, and_, cast, func, or_, update
+import shutil
+from datetime import datetime, timedelta
+from mangum import Mangum
+from typing import List, Optional
+from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger, APIRouter
+from fastapi.staticfiles import StaticFiles
+import jwt
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from sqlalchemy import func, select
+from parser.auth import verify_password
+from parser.database import get_db, get_dbb, init_db
+from parser.decode_token import create_access_token, decode_token
+from parser.models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
+from parser.schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
+import parser.crud as crud
+import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
-from telegram import Bot, InputMediaPhoto
-from database import get_db
-
-from models import Apartment,  File_apartment, Order, Rieltor, StopWord, TeamLeed, TelegramChannel, Template, TrapBlacklist
-from sqlalchemy.future import select
-from sqlalchemy.exc import NoResultFound
+from contextlib import asynccontextmanager
 from sqlalchemy.exc import SQLAlchemyError
-from passlib.context import CryptContext
-from schemas import ApartmentResponse, FileResponse, ImageOrderUpdate, RieltorCreate, RieltorSchema
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from dotenv import load_dotenv
+import tempfile
 url = os.getenv("base_url2")
 async def get_apartments_by_realtor(db: AsyncSession, realtor_id: int):
     stmt = select(Apartment).where(Apartment.rieltor_id == realtor_id)
