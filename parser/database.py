@@ -37,16 +37,16 @@ SessionLocal = sessionmaker(
 # Define Base for models
 Base = declarative_base()
 
-# Async dependency for getting the database session
 async def get_db():
     async with SessionLocal() as db:
         try:
             yield db
         except Exception as e:
             logging.error(f"❌ Error in database session: {e}")
+            await db.rollback()  # Explicit rollback to prevent lingering transactions
             raise
         finally:
-            await db.close()  # Ensure the session is closed after use
+            await db.close()  # Ensure session is always closed
             
 @asynccontextmanager
 async def get_dbb():
