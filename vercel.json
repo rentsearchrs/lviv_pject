@@ -9,13 +9,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "parser/main.py",
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-                "Access-Control-Allow-Headers": "Authorization, Content-Type"
-            }
+            "dest": "parser/main.py"
         }
-    ],
-    "trailingSlash": false
+    ]
 }

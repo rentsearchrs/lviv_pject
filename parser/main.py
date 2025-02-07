@@ -38,16 +38,18 @@ app = FastAPI()
 
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
-    "https://lviv-pject.vercel.app",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    
 )
 
 
@@ -1276,4 +1278,3 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 async def read_root():
     return {"message": "Welcome to this fantastic app!"}
 
-handler = Mangum(app)
