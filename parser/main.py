@@ -640,7 +640,6 @@ async def get_template(template_name: str):
 
 @router.get("/search_apartments/")
 async def search_apartments(
-    ,
     keyword: Optional[str] = None,
     price_from: Optional[int] = None,
     price_to: Optional[int] = None,
