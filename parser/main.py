@@ -1261,15 +1261,15 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 async def read_root():
     return {"message": "Welcome to this fantastic router!"}
 
-router = FastAPI()
+app = FastAPI()
 
 # Allowed origins (frontend URL)
 origins = [
-    "https://router-lemon-beta-90.vercel.router",  # Angular frontend
-    "http://localhost:3000",  # Local Angular development
+    "https://router-lemon-beta-90.vercel.app",  # Angular frontend
+    "https://lviv-pject.vercel.app",  
 ]
 
-router.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # Allow only specific frontend origins
     allow_credentials=True,
@@ -1277,4 +1277,4 @@ router.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-router.include_router(router)
+app.include_router(router)
