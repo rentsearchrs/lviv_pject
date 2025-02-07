@@ -1257,10 +1257,6 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
     await db.commit()
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
 
-@router.get("/", tags=["Root"])
-async def read_root():
-    return {"message": "Welcome to this fantastic router!"}
-
 app = FastAPI()
 
 # Allowed origins (frontend URL)
