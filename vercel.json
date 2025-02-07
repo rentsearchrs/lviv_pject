@@ -1,5 +1,5 @@
 {
-    "version": 2,
+    "devCommand": "uvicorn main:app --reload",
     "builds": [
         {
             "src": "parser/main.py",
@@ -13,5 +13,3 @@
         }
     ]
 }
-
-
