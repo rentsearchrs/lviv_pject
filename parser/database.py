@@ -7,24 +7,23 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from sqlalchemy.pool import AsyncAdaptedQueuePool
+
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql+asyncpg://avnadmin:AVNS_ZhtEhGvwkFrdZgfnWVn@pg-c57e027-bogdansavi05-868c.d.aivencloud.com:19262/defaultdb"
+
 
 # Configure SSL context for asyncpg - disable verification
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False  # Disable hostname verification
 ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
-logging.basicConfig(level=logging.DEBUG)  # Enable detailed logging
-
-
+# Create async engine with SSL context
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,  # ✅ Show SQL queries for debugging
+    echo=True,  # Log all SQL statements (useful for debugging; disable in production)
     connect_args={"ssl": ssl_context},
-    poolclass=AsyncAdaptedQueuePool
+    future=True
 )
 
 # Configure session factory
@@ -32,23 +31,23 @@ SessionLocal = sessionmaker(
     autocommit=False,  # Transactions must be explicitly committed
     autoflush=False,   # Avoid automatic state flushing
     bind=engine,       # Bind to the async engine
-    class_=AsyncSession # Use async session class
+    class_=AsyncSession, # Use async session class
+    expire_on_commit=False
 )
 
 # Define Base for models
 Base = declarative_base()
 
+# Async dependency for getting the database session
 async def get_db():
     async with SessionLocal() as db:
         try:
             yield db
         except Exception as e:
             logging.error(f"❌ Error in database session: {e}")
-            await db.rollback()
             raise
         finally:
-            await db.close()  # Ensure session is properly closed
-
+            await db.close()  # Ensure the session is closed after use
             
 @asynccontextmanager
 async def get_dbb():
