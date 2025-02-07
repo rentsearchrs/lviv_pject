@@ -34,21 +34,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI()
 
-# Allowed origins (frontend URL)
-origins = [
-    "https://app-lemon-beta-90.vercel.app",  # Angular frontend
-    "http://localhost:3000",  # Local Angular development
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Allow only specific frontend origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
 
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
@@ -1275,3 +1261,18 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 async def read_root():
     return {"message": "Welcome to this fantastic app!"}
 
+app = FastAPI()
+
+# Allowed origins (frontend URL)
+origins = [
+    "https://app-lemon-beta-90.vercel.app",  # Angular frontend
+    "http://localhost:3000",  # Local Angular development
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allow only specific frontend origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
