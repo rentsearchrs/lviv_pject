@@ -7,7 +7,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-
+from sqlalchemy.pool import NullPool
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -24,6 +24,7 @@ engine = create_async_engine(
     connect_args={"ssl": ssl_context},
     pool_size=10,  # Number of connections in the pool
     max_overflow=20,  # Extra connections allowed above the pool size
+    poolclass=NullPool
 )
 
 # Configure session factory
