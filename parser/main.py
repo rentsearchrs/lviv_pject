@@ -7,7 +7,7 @@ import shutil
 from datetime import datetime, timedelta
 from mangum import Mangum
 from typing import List, Optional
-from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger
+from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger, APIRouter
 from fastapi.staticfiles import StaticFiles
 import jwt
 from pydantic import BaseModel
@@ -38,20 +38,18 @@ app = FastAPI()
 
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:3000",
+    "https://lviv-pject.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(router)
+app = APIRouter()
 
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
