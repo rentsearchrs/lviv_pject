@@ -7,7 +7,8 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import AsyncAdaptedQueuePool  # Use SQLAlchemy's async pooling
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -22,7 +23,7 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # Log all SQL statements (useful for debugging; disable in production)
     connect_args={"ssl": ssl_context},
-    poolclass=NullPool
+    poolclass=AsyncAdaptedQueuePool
 )
 
 # Configure session factory
