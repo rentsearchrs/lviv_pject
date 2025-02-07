@@ -7,7 +7,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import AsyncAdaptedQueuePool
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -19,10 +19,12 @@ ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
 logging.basicConfig(level=logging.DEBUG)  # Enable detailed logging
 
+
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # ✅ Show SQL queries for debugging
-    connect_args={"ssl": ssl_context}
+    connect_args={"ssl": ssl_context},
+    poolclass=AsyncAdaptedQueuePool
 )
 
 # Configure session factory
