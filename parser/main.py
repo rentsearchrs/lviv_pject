@@ -1213,19 +1213,19 @@ async def get_realtor_info(token: str = Depends(oauth2_scheme)):
     Fetch the currently logged-in realtor's information.
     """
     async with SessionLocal() as db:
-    try:
-        realtor_id = decode_token(token)  # Extract the realtor's ID from the JWT token
-        stmt = select(Rieltor).where(Rieltor.id == realtor_id)
-        result = await db.execute(stmt)
-        realtor = result.scalar_one_or_none()
-
-        if not realtor:
-            raise HTTPException(status_code=404, detail="Realtor not found")
-
-        return RieltorResponse.from_orm(realtor)
-
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Unauthorized: {str(e)}")
+        try:
+            realtor_id = decode_token(token)  # Extract the realtor's ID from the JWT token
+            stmt = select(Rieltor).where(Rieltor.id == realtor_id)
+            result = await db.execute(stmt)
+            realtor = result.scalar_one_or_none()
+    
+            if not realtor:
+                raise HTTPException(status_code=404, detail="Realtor not found")
+    
+            return RieltorResponse.from_orm(realtor)
+    
+        except Exception as e:
+            raise HTTPException(status_code=401, detail=f"Unauthorized: {str(e)}")
         
 class WordModel(BaseModel):
     word: str  
