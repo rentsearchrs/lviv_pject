@@ -684,7 +684,7 @@ async def login(
                 "access_token": access_token,
                 "token_type": "bearer",
                 "id": rieltor.id,
-                "type": "realtor",
+                "type": "realtor"
             }
     
         # Check in TeamLeed table
@@ -698,7 +698,7 @@ async def login(
                 "access_token": access_token,
                 "token_type": "bearer",
                 "id": team_lead.id,
-                "type": "team_leader",
+                "type": "team_leader"
             }
     
         raise HTTPException(status_code=401, detail="Invalid username or password")
