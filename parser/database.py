@@ -22,9 +22,7 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # Debugging logs
     connect_args={"ssl": ssl_context},
-    poolclass=AsyncAdaptedQueuePool,  # Use SQLAlchemy's async pool instead of PgBouncer
-    pool_size=10,  # Adjust based on load
-    max_overflow=20
+    poolclass=AsyncAdaptedQueuePool  # Use SQLAlchemy's async pool instead of PgBouncer
 )
 
 # Configure session factory
