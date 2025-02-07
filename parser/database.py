@@ -20,12 +20,11 @@ ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
-    connect_args={
-        "ssl": ssl_context,
-        "statement_cache_size": 0  # 🔥 Disable prepared statements
-    },
-    poolclass=NullPool  # Use NullPool when using PgBouncer
+    echo=True,  # Debugging logs
+    connect_args={"ssl": ssl_context},
+    poolclass=AsyncAdaptedQueuePool,  # Use SQLAlchemy's async pool instead of PgBouncer
+    pool_size=10,  # Adjust based on load
+    max_overflow=20
 )
 
 # Configure session factory
