@@ -18,11 +18,13 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False  # Disable hostname verification
 ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
+logging.basicConfig(level=logging.DEBUG)  # Enable detailed logging
+
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,  # Debugging logs
+    echo=True,  # ✅ Show SQL queries for debugging
     connect_args={"ssl": ssl_context},
-    poolclass=AsyncAdaptedQueuePool  # Use SQLAlchemy's async pool instead of PgBouncer
+    poolclass=AsyncAdaptedQueuePool
 )
 
 # Configure session factory
@@ -45,7 +47,8 @@ async def get_db():
             await db.rollback()
             raise
         finally:
-            await db.close()
+            await db.close()  # Ensure session is properly closed
+
             
 @asynccontextmanager
 async def get_dbb():
