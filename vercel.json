@@ -19,7 +19,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "parser/main.py"
+            "dest": "/parser/main.py"
         }
     ]
 }
