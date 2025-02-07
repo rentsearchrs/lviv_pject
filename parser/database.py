@@ -18,12 +18,14 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False  # Disable hostname verification
 ssl_context.verify_mode = ssl.CERT_NONE  # Disable SSL verification
 
-# Create async engine with SSL context
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,  # Log all SQL statements (useful for debugging; disable in production)
-    connect_args={"ssl": ssl_context},
-    poolclass=AsyncAdaptedQueuePool
+    echo=True,
+    connect_args={
+        "ssl": ssl_context,
+        "statement_cache_size": 0  # 🔥 Disable prepared statements
+    },
+    poolclass=NullPool  # Use NullPool when using PgBouncer
 )
 
 # Configure session factory
@@ -43,7 +45,6 @@ async def get_db():
             yield db
         except Exception as e:
             logging.error(f"❌ Error in database session: {e}")
-            await db.rollback()  # Explicit rollback to prevent lingering transactions
             raise
         finally:
             await db.close()  # Ensure session is always closed
