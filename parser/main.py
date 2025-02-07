@@ -38,7 +38,6 @@ app = FastAPI()
 
 origins = [
     "https://app-lemon-beta-90.vercel.app",  # Angular frontend origin
-    "https://lviv-pject.vercel.app",
 ]
 
 app.add_middleware(
@@ -48,8 +47,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(router)
-app = APIRouter()
+
 
 #@app.get("/apartments/")
 #async def get_successful_ads(db: AsyncSession = Depends(get_db)):
