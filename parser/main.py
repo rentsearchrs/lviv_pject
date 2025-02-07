@@ -150,7 +150,7 @@ async def update_order_status(
 
 
 
-@router.get("/get_orders/", response_model=List[OrderResponse])
+@router.get("/get_orders", response_model=List[OrderResponse])
 async def get_orders(
     realtor_id: int = Query(...),  # Pass realtor_id as a query parameter
     db: AsyncSession = Depends(get_db)
@@ -173,7 +173,7 @@ async def get_orders(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
-@router.post("/orders/")
+@router.post("/orders")
 async def create_order_endpoint(order: OrderCreate, db: AsyncSession = Depends(get_db)):
     logger.info(f"Received order request: {order}")
     try:
@@ -198,7 +198,7 @@ async def create_order_endpoint(order: OrderCreate, db: AsyncSession = Depends(g
         logger.error(f"Error while creating order: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
-@router.get("/team_leader/orders/", response_model=List[OrderResponse])
+@router.get("/team_leader/orders", response_model=List[OrderResponse])
 async def get_unassigned_orders(
     team_leader_id: int = Query(...),  # Pass team_leader_id as a query parameter
     db: AsyncSession = Depends(get_db)
@@ -259,7 +259,7 @@ async def assign_order_to_realtor(order_id: int, realtor_id: int, db: AsyncSessi
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning order: {str(e)}")
 
-@router.put("/team_leader/orders/{order_id}/assign/")
+@router.put("/team_leader/orders/{order_id}/assign")
 async def assign_order_to_realtor(
     order_id: int,
     realtor_id: int = Query(...),  # Pass realtor_id as a query parameter
@@ -360,12 +360,12 @@ async def get_combined_team_leader_stats(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching combined stats: {str(e)}")
-@router.get("/get_orders_and_photo/", response_model=List[ApartmentResponse])
+@router.get("/get_orders_and_photo", response_model=List[ApartmentResponse])
 async def read_orders(request: Request, db: AsyncSession = Depends(get_db)):
     apartments = await crud.get_all_apartments_and_photo(db, request)
     return apartments
 
-@router.get("/get_orders_and_photo_all/", response_model=List[ApartmentResponse])
+@router.get("/get_orders_and_photo_all", response_model=List[ApartmentResponse])
 async def read_orders(request: Request, db: AsyncSession = Depends(get_db)):
     apartments = await crud.get_all_apartments_and_photo_all(db, request)
     return apartments
@@ -681,7 +681,7 @@ async def login(
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
 
-@router.post("/users/", response_model=RieltorSchema)
+@router.post("/users", response_model=RieltorSchema)
 async def create_user(user: RieltorCreate, db: AsyncSession = Depends(get_db)):
     existing_user = await crud.get_rieltor_by_username(db, username=user.username)  # Await the async function
     if existing_user:
@@ -713,7 +713,7 @@ async def set_lease(apartment_id: int, lease_months: int, db: AsyncSession = Dep
 
 from sqlalchemy.orm import joinedload, selectinload
 
-@router.get("/agents/{agent_id}/apartments/")
+@router.get("/agents/{agent_id}/apartments")
 async def get_agent_apartments(
     agent_id: int,
     apartment_id: Optional[int] = Query(None),
@@ -739,7 +739,7 @@ async def get_agent_apartments(
 
 
 
-@router.get("/agents/{agent_id}/notifications/")
+@router.get("/agents/{agent_id}/notifications")
 async def get_agent_notifications(agent_id: int, db: AsyncSession = Depends(get_db)):
     today = datetime.now()
     one_week_later = today + timedelta(days=7)
@@ -788,7 +788,7 @@ async def archive_apartment(apartment_id: int, db: AsyncSession = Depends(get_db
     return {"message": "Apartment archived successfully"}
 
 
-@router.get("/agents/me/apartments/")
+@router.get("/agents/me/apartments")
 async def get_my_apartments(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     try:
         agent_id = int(decode_token(token))
@@ -819,7 +819,7 @@ async def read_realtors(db: AsyncSession = Depends(get_db)):
 
 from fastapi import Query
 
-@router.post("/assign_team_leader/")
+@router.post("/assign_team_leader")
 async def assign_team_leader(
     request: AssignTeamLeaderRequest,
     db: AsyncSession = Depends(get_db)
@@ -853,7 +853,7 @@ async def get_team_leader_realtors(
 
 
 
-@router.post("/team_leaders/", response_model=RieltorSchema)
+@router.post("/team_leaders", response_model=RieltorSchema)
 async def create_team_leader(team_leader: RieltorCreate, db: AsyncSession = Depends(get_db)):
     try:
         # Ensure the team leader type is "team_leader"
@@ -964,7 +964,7 @@ async def get_team_leader_realtor_stats(team_leader_id: int, db: AsyncSession = 
         logger.error(f"Error fetching realtor stats: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching realtor stats: {e}")
 
-@router.get("/order_statistics/")
+@router.get("/order_statistics")
 async def get_order_statistics(realtor_id: int, db: AsyncSession = Depends(get_db)):
     try:
         # Fetch order statistics for a specific realtor
@@ -1186,7 +1186,7 @@ async def get_realtor_info(token: str = Depends(oauth2_scheme), db: AsyncSession
     
 class WordModel(BaseModel):
     word: str  
-@router.post("/admin/add_trap/")
+@router.post("/admin/add_trap")
 async def add_trap_word(data: WordModel, db: AsyncSession = Depends(get_db)):
     new_trap = TrapBlacklist(keyword=data.word.lower())
     db.add(new_trap)
@@ -1233,7 +1233,7 @@ async def remove_stop_word(word: str, db: AsyncSession = Depends(get_db)):
     
     raise HTTPException(status_code=404, detail="Word not found")
 
-@router.get("/admin/verification_ads/")
+@router.get("/admin/verification_ads")
 async def get_verification_ads(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Apartment).where(Apartment.requires_verification == True))
     apartments = result.scalars().all()
