@@ -22,8 +22,7 @@ logging.basicConfig(level=logging.DEBUG)  # Enable detailed logging
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # ✅ Show SQL queries for debugging
-    connect_args={"ssl": ssl_context},
-    poolclass=NullPool
+    connect_args={"ssl": ssl_context}
 )
 
 # Configure session factory
