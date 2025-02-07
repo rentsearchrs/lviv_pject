@@ -22,8 +22,6 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # Log all SQL statements (useful for debugging; disable in production)
     connect_args={"ssl": ssl_context},
-    pool_size=10,  # Number of connections in the pool
-    max_overflow=20,  # Extra connections allowed above the pool size
     poolclass=NullPool
 )
 
