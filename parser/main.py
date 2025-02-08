@@ -26,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from dotenv import load_dotenv
 import tempfile
+from passlib.context import CryptContext
 load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
