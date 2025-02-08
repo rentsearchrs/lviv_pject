@@ -19,7 +19,7 @@ semaphore = asyncio.Semaphore(50)
 SCRAPER_RUNNING = False
 # Setup Selenium WebDriver using Firefox
 def setup_selenium():
-    service = FirefoxService(executable_path="parser/geckodriver_2")
+    service = FirefoxService(executable_path="/parser/geckodriver_2")
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")  # Run in headless mode to save resources
     options.add_argument("--disable-gpu")  # Disable GPU if not needed
