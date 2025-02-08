@@ -333,7 +333,7 @@ async def get_all_apartments_and_photo_all(db: AsyncSession, request: Request):
                     date=file.date,
                     content_type=file.content_type,
                     # Construct the full URL for the image without /static/
-                    file_path=f"http://127.0.0.1:8000/{file.file_path.lstrip('/')}",  # Ensure correct URL formation
+                    file_path=f"https://lviv-pject.vercel.app/{file.file_path.lstrip('/')}",  # Ensure correct URL formation
                     order=file.order
                 ) for file in apartment.files
             ]
@@ -400,7 +400,7 @@ async def get_apartment_by_id(db: AsyncSession, apartment_id: int) -> Optional[A
                 filename=file.filename,
                 date=file.date,
                 content_type=file.content_type,
-                file_path=f"http://127.0.0.1:8000/{file.file_path.lstrip('/')}",
+                file_path=f"https://lviv-pject.vercel.app/{file.file_path.lstrip('/')}",
             )
             for file in apartment.files
         ]
