@@ -1,5 +1,5 @@
 {
-    "devCommand": "uvicorn main:app --host 0.0.0.0 --port 3000",
+    "version": 2,
     "builds": [
         {
             "src": "/parser/main.py",
@@ -15,6 +15,9 @@
               "Access-Control-Allow-Origin": "*"
             }
         }
-    ]
+    ],
+    "env": {
+      "APP_MODULE": "main:app"
+    }
 }
       
