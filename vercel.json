@@ -1,12 +1,9 @@
 {
-    "version": 2,
+    "devCommand": "uvicorn main:app --host 0.0.0.0 --port 3000",
     "builds": [
         {
             "src": "/parser/main.py",
-            "use": "@vercel/python",
-            "config": {
-                "startCommand": "uvicorn main:app --host 0.0.0.0 --port 8000"
-            }
+            "use": "@vercel/python"
         }
     ],
     "routes": [
