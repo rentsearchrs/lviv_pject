@@ -21,14 +21,14 @@ SCRAPER_RUNNING = False
 def setup_selenium():
     print("🛠️ Setting up Selenium...")  # DEBUGGING
     try:
-        service = FirefoxService(executable_path="./geckodriver_2")
+        #service = FirefoxService(executable_path="./geckodriver_2")
         options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
-        driver = webdriver.Firefox(service=service, options=options)
+        driver = webdriver.Firefox(options=options)
         print("✅ Selenium WebDriver started successfully!")  # DEBUGGING
         return driver
     except Exception as e:
