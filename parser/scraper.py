@@ -21,7 +21,7 @@ SCRAPER_RUNNING = False
 def setup_selenium():
     print("🛠️ Setting up Selenium...")  # DEBUGGING
     try:
-        service = FirefoxService(executable_path="lviv_pject/parser/geckodriver_2")
+        service = FirefoxService(executable_path="./geckodriver_2")
         options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
