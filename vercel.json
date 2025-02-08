@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "parser/main.py",
+            "src": "/parser/main.py",
             "use": "@vercel/python",
             "config": {
                 "startCommand": "uvicorn main:app"
