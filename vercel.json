@@ -3,10 +3,7 @@
     "builds": [
         {
             "src": "/parser/main.py",
-            "use": "@vercel/python",
-            "config": {
-                "startCommand": "uvicorn main:app"
-            }
+            "use": "@vercel/python"
         }
     ],
     "routes": [
