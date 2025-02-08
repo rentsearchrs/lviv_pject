@@ -36,9 +36,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-IMAGE_DIR = "images"
+
+# Use a writable temporary directory for images
+if "AWS_LAMBDA_FUNCTION_NAME" in os.environ:
+    IMAGE_DIR = "/tmp/images"  # AWS Lambda allows writing to /tmp/
+else:
+    IMAGE_DIR = tempfile.mkdtemp()  # General case for local and other cloud environments
+
 os.makedirs(IMAGE_DIR, exist_ok=True)
-app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 
 # Allowed origins (frontend URL)
 origins = [
