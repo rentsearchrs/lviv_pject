@@ -5,7 +5,6 @@ import logging
 import os
 import shutil
 from datetime import datetime, timedelta
-from mangum import Mangum
 from typing import List, Optional
 from fastapi import Body, FastAPI, BackgroundTasks, Depends, File, HTTPException, Path, Query, Request, UploadFile, logger, APIRouter
 from fastapi.staticfiles import StaticFiles
