@@ -512,7 +512,7 @@ async def startup_event():
     await init_db()
     
     # Start scraping in the background
-    asyncio.create_task(scraper.scrape_and_save(total_pages=3))  # Corrected to only pass total_pages
+    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Corrected to only pass total_pages
 @asynccontextmanager
 async def get_async_db():
     """This helper context manager correctly handles async generator for database session."""
