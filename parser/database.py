@@ -7,7 +7,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-
+from sqlalchemy.pool import NullPool
 load_dotenv()
 
 DATABASE_URL = "postgresql+asyncpg://avnadmin:AVNS_ZhtEhGvwkFrdZgfnWVn@pg-c57e027-bogdansavi05-868c.d.aivencloud.com:19262/defaultdb"
@@ -23,7 +23,8 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # Log all SQL statements (useful for debugging; disable in production)
     connect_args={"ssl": ssl_context},
-    future=True
+    future=True,
+    poolclass=NullPool
 )
 
 # Configure session factory
