@@ -33,10 +33,9 @@ load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-IMAGE_DIR = "images"
-os.makedirs(IMAGE_DIR, exist_ok=True)
+
 app = FastAPI()
-app.mount("/images", StaticFiles(directory="images"), name="images")
+
 
 # Allowed origins (frontend URL)
 origins = [
