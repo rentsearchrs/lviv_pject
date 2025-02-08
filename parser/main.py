@@ -18,6 +18,7 @@ from parser.decode_token import create_access_token, decode_token
 from parser.models import Apartment, File_apartment, Order, StopWord, TeamLeed, TelegramChannel, Template, Rieltor, TrapBlacklist
 from parser.schemas import ApartmentResponse, AssignTeamLeaderRequest,  FileApartmentResponse, RieltorResponse, RieltorSchema, ImageOrderUpdate, OrderCreate, OrderResponse, RieltorCreate, RieltorResponsee
 import parser.crud as crud
+import parser.scraper as scraper 
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,8 +33,10 @@ load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+IMAGE_DIR = "images"
+os.makedirs(IMAGE_DIR, exist_ok=True)
 app = FastAPI()
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 # Allowed origins (frontend URL)
 origins = [
