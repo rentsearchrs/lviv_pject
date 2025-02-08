@@ -36,6 +36,9 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+IMAGE_DIR = "images"
+os.makedirs(IMAGE_DIR, exist_ok=True)
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 # Allowed origins (frontend URL)
 origins = [
