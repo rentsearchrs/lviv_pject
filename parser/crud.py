@@ -26,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from dotenv import load_dotenv
 import tempfile
+from passlib.context import CryptContext
 url = os.getenv("base_url2")
 async def get_apartments_by_realtor(db: AsyncSession, realtor_id: int):
     stmt = select(Apartment).where(Apartment.rieltor_id == realtor_id)
