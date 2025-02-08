@@ -19,18 +19,22 @@ semaphore = asyncio.Semaphore(50)
 SCRAPER_RUNNING = False
 # Setup Selenium WebDriver using Firefox
 def setup_selenium():
-    service = FirefoxService(executable_path="/parser/geckodriver_2")
-    options = webdriver.FirefoxOptions()
-    options.add_argument("--headless")  # Run in headless mode to save resources
-    options.add_argument("--disable-gpu")  # Disable GPU if not needed
-    options.add_argument("--no-sandbox")  # Recommended for Linux systems to avoid resource hogging
-    options.add_argument("--disable-dev-shm-usage")  # Use /tmp instead of /dev/shm
+    print("🛠️ Setting up Selenium...")  # DEBUGGING
+    try:
+        service = FirefoxService(executable_path="parser/geckodriver_2")
+        options = webdriver.FirefoxOptions()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
-    # Enable adaptive throttling to reduce resource usage on idle
-    options.set_capability("pageLoadStrategy", "eager")  # Load only essential resources
+        driver = webdriver.Firefox(service=service, options=options)
+        print("✅ Selenium WebDriver started successfully!")  # DEBUGGING
+        return driver
+    except Exception as e:
+        print(f"❌ Selenium setup failed: {e}")  # DEBUGGING
+        return None
 
-    driver = webdriver.Firefox(service=service, options=options)
-    return driver
 
 BASE_URLS = [
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/lv/?currency=USD&page=",
