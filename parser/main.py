@@ -50,6 +50,7 @@ app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 origins = [
     "https://router-lemon-beta-90.vercel.app",  # Angular frontend
     "https://lviv-pject.vercel.app",  
+    "*",  # Allow all origins for testing (remove in production)
 ]
 
 app.add_middleware(
