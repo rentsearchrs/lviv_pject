@@ -17,7 +17,7 @@
         }
     ],
     "env": {
-      "APP_MODULE": "main:app"
+      "APP_MODULE": "parser.main:app"
     }
 }
       
