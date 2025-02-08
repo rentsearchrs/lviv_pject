@@ -1313,7 +1313,6 @@ async def stop_scraping():
     scraper.BASE_URLS.clear()  # Clear BASE_URLS to ensure the scraper stops immediately
     return {"message": "Scraping stopped"}
 
-# Ensure correct WSGI configuration
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
