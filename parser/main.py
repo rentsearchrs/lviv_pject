@@ -438,46 +438,6 @@ async def apply_watermark_to_existing_image(apartment_id: int, image_id: int, db
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error applying watermark: {e}")
 
-import cv2
-
-def remove_watermark_with_ai(image_path):
-    """Use OpenCV inpainting to remove watermarks"""
-    # Load the image
-    image = cv2.imread(image_path)
-
-    # Convert to grayscale for mask detection
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Create a mask by thresholding the image (adjust if needed)
-    _, mask = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
-
-    # Perform inpainting using the mask
-    inpainted_image = cv2.inpaint(image, mask, inpaintRadius=3, flags=cv2.INPAINT_TELEA)
-
-    # Save the modified image back to the same path
-    cv2.imwrite(image_path, inpainted_image)
-
-@app.put("/apartments/{apartment_id}/remove_watermark_ai/{image_id}")
-async def remove_watermark_ai(apartment_id: int, image_id: int, db: AsyncSession = Depends(get_db)):
-    # Fetch the image from the database
-    result = await db.execute(select(File_apartment).where(File_apartment.id == image_id))
-    image_record = result.scalar_one_or_none()
-
-    if not image_record:
-        raise HTTPException(status_code=404, detail="Image not found")
-
-    try:
-        # Apply AI-based watermark removal
-        remove_watermark_with_ai(image_record.file_path)
-
-        # Save the modified image and commit the changes
-        await db.commit()
-        await db.refresh(image_record)
-
-        return {"message": "Watermark removed successfully using AI"}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error removing watermark using AI: {e}")
 
 
 @app.post("/apartments/{apartment_id}/upload_images", response_model=List[FileApartmentResponse])
