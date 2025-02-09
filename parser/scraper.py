@@ -18,29 +18,32 @@ semaphore = asyncio.Semaphore(50)
 # Global flag to control scraper dynamically
 SCRAPER_RUNNING = False
 def setup_selenium():
-    """Sets up Selenium to use BrowserStack remote WebDriver."""
-    REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
-
-    # Define BrowserStack capabilities
-    capabilities = {
-        "browserName": "Firefox",         # Change to desired browser
-        "browserVersion": "131.0",        # Specify browser version
-        "os": "Windows",                  # Choose OS
-        "osVersion": "10",                 # Choose OS version
-        "buildName": "browserstack-build-1",
-        "projectName": "BrowserStack Sample",
-        "seleniumVersion": "4.0.0",
-    }
-
-    # Set up remote WebDriver
-    driver = webdriver.Remote(
-        command_executor=REMOTE_SELENIUM_URL,
-        desired_capabilities=capabilities
-    )
-
-    return driver
-
-
+    print("🛠️ Setting up Selenium...")
+    try:
+        """Sets up Selenium to use BrowserStack remote WebDriver."""
+        REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
+    
+        # Define BrowserStack capabilities
+        capabilities = {
+            "browserName": "Firefox",         # Change to desired browser
+            "browserVersion": "131.0",        # Specify browser version
+            "os": "Windows",                  # Choose OS
+            "osVersion": "10",                 # Choose OS version
+            "buildName": "browserstack-build-1",
+            "projectName": "BrowserStack Sample",
+            "seleniumVersion": "4.0.0",
+        }
+    
+        # Set up remote WebDriver
+        driver = webdriver.Remote(
+            command_executor=REMOTE_SELENIUM_URL,
+            desired_capabilities=capabilities
+        )
+            print("✅ Selenium WebDriver started successfully!")
+        return driver
+    except Exception as e:
+        print(f"❌ Selenium setup failed: {e}")
+        raise e  # Raise the error to see full details in logs
 BASE_URLS = [
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/lv/?currency=USD&page=",
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/prodazha-kvartir/lv/?currency=USD&page=",
