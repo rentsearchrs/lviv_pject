@@ -511,7 +511,7 @@ async def startup_event():
     await init_db()  # Ensure database is initialized
 
     # ✅ Start scraper asynchronously in a non-blocking way
-    asyncio.create_task(scraper.scrape_and_save(total_pages=3))
+    asyncio.create_task(scraper.scrape_and_save(total_pages=1))
 @asynccontextmanager
 async def get_async_db():
     """This helper context manager correctly handles async generator for database session."""
