@@ -234,7 +234,7 @@ async def scrape_and_save(total_pages=5):
         return
 
     print("✅ Scraper started...")
-    SCRAPER_RUNNING = True
+    SCRAPER_RUNNING = True  # Set flag to prevent multiple runs
 
     driver = setup_selenium()
 
@@ -245,7 +245,6 @@ async def scrape_and_save(total_pages=5):
 
                 if not BASE_URLS:
                     print("🚫 BASE_URLS is empty. Stopping scraper.")
-                    SCRAPER_RUNNING = False
                     return
 
                 for base_url in BASE_URLS:
@@ -298,6 +297,6 @@ async def scrape_and_save(total_pages=5):
 
     finally:
         driver.quit()
-        SCRAPER_RUNNING = False
+        SCRAPER_RUNNING = False  # ✅ Ensure flag is reset no matter what
         print("✅ Scraper finished successfully!")
 
