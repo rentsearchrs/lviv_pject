@@ -224,62 +224,70 @@ async def scrape_and_save(total_pages=5):
     """Main scraper function that stops dynamically when `SCRAPER_RUNNING` is set to False."""
     global SCRAPER_RUNNING
 
-    if not SCRAPER_RUNNING:
-        print("🚫 Scraper is stopped. Exiting...")
-        return  # Stop if scraper is not running
+    if SCRAPER_RUNNING:
+        print("🚫 Scraper is already running. Exiting...")
+        return
+
+    print("✅ Scraper started...")
+    SCRAPER_RUNNING = True
 
     driver = setup_selenium()
-    
-    async for db in get_db():
-        try:
-            results_by_url = {}
 
-            # Check if BASE_URLS is empty
-            if not BASE_URLS:
-                print("🚫 BASE_URLS is empty. Stopping scraper.")
-                SCRAPER_RUNNING = False  # Reset flag
-                return
+    try:
+        async for db in get_db():
+            try:
+                results_by_url = {}
 
-            for base_url in BASE_URLS:
-                if not SCRAPER_RUNNING:
-                    print("🚫 Scraper stopped while running.")
-                    return  
+                if not BASE_URLS:
+                    print("🚫 BASE_URLS is empty. Stopping scraper.")
+                    SCRAPER_RUNNING = False
+                    return
 
-                url_results = []
-                for page in range(1, total_pages + 1):
+                for base_url in BASE_URLS:
                     if not SCRAPER_RUNNING:
-                        print("🚫 Scraper stopped while fetching pages.")
-                        return 
-
-                    apartments = await scrape_titles_and_urls(driver, base_url, page)
-                    url_results.extend(apartments)
-                results_by_url[base_url] = url_results
-
-            # Process the scraped apartments
-            for base_url, apartments in results_by_url.items():
-                print(f"Processing apartments for URL: {base_url}")
-
-                for apartment in apartments:
-                    if not SCRAPER_RUNNING:
-                        print("🚫 Scraper stopped while processing apartments.")
+                        print("🚫 Scraper stopped while running.")
                         return  
 
-                    details = await scrape_apartment_details(
-                        driver, apartment['url'], apartment['title'], 
-                        apartment['type_deal'], apartment['type_object']
-                    )
+                    url_results = []
+                    for page in range(1, total_pages + 1):
+                        if not SCRAPER_RUNNING:
+                            print("🚫 Scraper stopped while fetching pages.")
+                            return 
 
-                    if details:
-                        try:
-                            saved_apartment = await crud.create_or_update_apartment(db, details)
-                            apartment_id = saved_apartment.id
+                        apartments = await scrape_titles_and_urls(driver, base_url, page)
+                        url_results.extend(apartments)
+                    
+                    results_by_url[base_url] = url_results
 
-                            await scrape_and_save_images(driver, apartment['url'], apartment_id, db)
-                        except Exception as e:
-                            print(f"❌ Error saving apartment details or images: {e}")
+                # Process the scraped apartments
+                for base_url, apartments in results_by_url.items():
+                    print(f"Processing apartments for URL: {base_url}")
 
-        finally:
-            driver.quit()
-            await db.close()
-            SCRAPER_RUNNING = False 
+                    for apartment in apartments:
+                        if not SCRAPER_RUNNING:
+                            print("🚫 Scraper stopped while processing apartments.")
+                            return  
 
+                        details = await scrape_apartment_details(
+                            driver, apartment['url'], apartment['title'], 
+                            apartment['type_deal'], apartment['type_object']
+                        )
+
+                        if details:
+                            try:
+                                saved_apartment = await crud.create_or_update_apartment(db, details)
+                                apartment_id = saved_apartment.id
+                                await scrape_and_save_images(driver, apartment['url'], apartment_id, db)
+                            except Exception as e:
+                                print(f"❌ Error saving apartment details or images: {e}")
+
+            finally:
+                await db.close()
+
+    except Exception as e:
+        print(f"❌ Error in scraper: {e}")
+
+    finally:
+        driver.quit()
+        SCRAPER_RUNNING = False
+        print("✅ Scraper finished successfully!")
