@@ -60,57 +60,62 @@ BASE_URLS = [
 ]
 
 # Stage 1: Scrape apartment titles and URLs from each listings page
+
 async def scrape_titles_and_urls(driver, base_url, page_number):
     async with semaphore:
         full_url = f"{base_url}{page_number}"
         
-        print(f"Fetching page: {full_url}")
+        print(f"🚀 Fetching page: {full_url}")
         driver.get(full_url)
-        await asyncio.sleep(2)
 
-        # Extract type_deal and type_object from the base URL
+        # ✅ Wait until listings load instead of using sleep()
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "css-1apmciz"))
+            )
+        except:
+            print("⚠️ Listings not found on page.")
+            return []
+
+        # Extract type_deal and type_object from the URL
         parsed_url = urlparse(full_url)
         path_parts = parsed_url.path.split('/')
-        
-        # Ensure the path has enough parts to extract the values
-        if len(path_parts) >= 5:
-            type_deal = path_parts[3]  # Extract 'kvartiry', 'doma', etc.
-            type_object = path_parts[4]  # Extract 'prodazha-kvartir', 'prodazha-domov', 'arenda-domov'
-        else:
-            type_deal = None
-            type_object = None
+        type_deal = path_parts[3] if len(path_parts) >= 5 else None
+        type_object = path_parts[4] if len(path_parts) >= 5 else None
 
-        last_height = driver.execute_script("return document.body.scrollHeight")
+        # 🔄 Scrolling dynamically
         apartments = []
+        last_height = driver.execute_script("return document.body.scrollHeight")
 
         while True:
-            # Scroll down to the bottom of the page
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            await asyncio.sleep(5)  # Wait for new elements to load
+            await asyncio.sleep(3)  # Small wait for new content
 
-            # Collect the listings
+            # ✅ Check if new elements appeared
             listings = driver.find_elements(By.CLASS_NAME, "css-1apmciz")
+            if not listings:
+                print("⚠️ No new listings found, stopping scroll.")
+                break
 
             for listing in listings:
                 try:
                     title_element = listing.find_element(By.CSS_SELECTOR, "a.css-qo0cxu")
                     title = title_element.text
-                    url = listing.find_element(By.CSS_SELECTOR, "a.css-qo0cxu").get_attribute("href")
+                    url = title_element.get_attribute("href")
 
-                    # Add the title, url, type_deal, and type_object to the list
                     apartments.append({
                         "title": title,
                         "url": url,
-                        "type_deal": type_deal,  # Assign type_deal extracted from base URL
-                        "type_object": type_object  # Assign type_object extracted from base URL
+                        "type_deal": type_deal,
+                        "type_object": type_object
                     })
                 except Exception as e:
-                    print(f"Error processing a listing: {e}")
+                    print(f"❌ Error processing listing: {e}")
 
-            # Check if we've reached the bottom of the page (no more content to load)
+            # Check if we reached the bottom
             new_height = driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
-                break  # Exit the loop if no more scrolling is possible
+                break  # Exit loop if no new content is loading
             last_height = new_height
 
         return apartments
@@ -118,45 +123,51 @@ async def scrape_titles_and_urls(driver, base_url, page_number):
 # Stage 2: Scrape additional details for each apartment from its individual page
 async def scrape_apartment_details(driver, apartment_url, title, type_deal, type_object):
     driver.get(apartment_url)
-    await asyncio.sleep(2)
-    
+
+    # ✅ Wait until main elements are visible
     try:
-        # Extract additional apartment details
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "h3.css-fqcbii"))
+        )
+    except:
+        print(f"⚠️ Page {apartment_url} did not load properly.")
+        return None
+
+    try:
         price = driver.find_element(By.CSS_SELECTOR, "h3.css-fqcbii").text
         description = driver.find_element(By.CSS_SELECTOR, "div.css-1o924a9").text
         features = driver.find_element(By.CSS_SELECTOR, "div.css-41yf00").text
         location_date_element = driver.find_element(By.CSS_SELECTOR, "div.css-13l8eec").text
         user = driver.find_element(By.CSS_SELECTOR, "h4.css-lyp0yk").text
-        location_date = location_date_element.replace('Львівська область', '').strip().replace(',', '').strip()
 
+        location_date = location_date_element.replace('Львівська область', '').strip().replace(',', '').strip()
         location_date = map_location_with_region(location_date)
 
-        # Click on the button to reveal additional information if present
+        # ✅ Try clicking "Show More" button
         try:
-            driver.find_element(By.CSS_SELECTOR, ".css-1vgbwlu").click()
+            button = driver.find_element(By.CSS_SELECTOR, ".css-1vgbwlu")
+            driver.execute_script("arguments[0].click();", button)
             await asyncio.sleep(1)
-        except Exception as e:
-            print("Button click failed or not found:", e)
+        except:
+            pass  # Button might not be there
 
-        # Features extraction
-        features_map = {}
-        patterns = {
-            "owner": r"(Приватна особа|Бізнес)",
-            "residential_complex": r"Назва ЖК:\s*(.+)",
-            "floor": r"Поверх:\s*(\d+)",
-            "superficiality": r"Поверховість:\s*(\d+)",
-            "square": r"Загальна площа:\s*(\d+)",
-            "classs": r"Клас житла:\s*(.+)",
-            "room": r"Кількість кімнат:\s*(\d+)"
+        # ✅ Extract structured features
+        features_map = {
+            "owner": re.search(r"(Приватна особа|Бізнес)", features),
+            "residential_complex": re.search(r"Назва ЖК:\s*(.+)", features),
+            "floor": re.search(r"Поверх:\s*(\d+)", features),
+            "superficiality": re.search(r"Поверховість:\s*(\d+)", features),
+            "square": re.search(r"Загальна площа:\s*(\d+)", features),
+            "classs": re.search(r"Клас житла:\s*(.+)", features),
+            "room": re.search(r"Кількість кімнат:\s*(\d+)", features),
         }
+        for key in features_map:
+            features_map[key] = features_map[key].group(1) if features_map[key] else ""
 
-        for key, pattern in patterns.items():
-            match = re.search(pattern, features)
-            features_map[key] = match.group(1) if match else ""
-
-        # Extract phone and ID if available
+        # ✅ Try fetching phone and ID
         phone = driver.find_element(By.CSS_SELECTOR, "a.css-v1ndtc").text if driver.find_elements(By.CSS_SELECTOR, "a.css-v1ndtc") else None
         id_olx = driver.find_element(By.CSS_SELECTOR, "span.css-12hdxwj").text if driver.find_elements(By.CSS_SELECTOR, "span.css-12hdxwj") else None
+
         return {
             "title": title,
             "price": price,
@@ -177,10 +188,10 @@ async def scrape_apartment_details(driver, apartment_url, title, type_deal, type
             "id_olx": id_olx,
             "user": user
         }
-
     except Exception as e:
-        print(f"Error scraping apartment details: {e}")
+        print(f"❌ Error scraping details: {e}")
         return None
+
 
 async def scrape_and_save_images(driver, apartment_url, apartment_id, db: AsyncSession):
     image_dir = f"images/apartment_{apartment_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
