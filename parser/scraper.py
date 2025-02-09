@@ -17,23 +17,28 @@ from parser.filter_oblast import map_location_with_region
 semaphore = asyncio.Semaphore(50)
 # Global flag to control scraper dynamically
 SCRAPER_RUNNING = False
-# Setup Selenium WebDriver using Firefox
 def setup_selenium():
-    print("🛠️ Setting up Selenium...")  # DEBUGGING
-    try:
-        #service = FirefoxService(executable_path="./geckodriver_2")
-        options = webdriver.FirefoxOptions()
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+    """Sets up Selenium to use BrowserStack remote WebDriver."""
+    REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
 
-        driver = webdriver.Firefox(options=options)
-        print("✅ Selenium WebDriver started successfully!")  # DEBUGGING
-        return driver
-    except Exception as e:
-        print(f"❌ Selenium setup failed: {e}")  # DEBUGGING
-        return None
+    # Define BrowserStack capabilities
+    capabilities = {
+        "browserName": "Firefox",         # Change to desired browser
+        "browserVersion": "131.0",        # Specify browser version
+        "os": "Windows",                  # Choose OS
+        "osVersion": "10",                 # Choose OS version
+        "buildName": "browserstack-build-1",
+        "projectName": "BrowserStack Sample",
+        "seleniumVersion": "4.0.0",
+    }
+
+    # Set up remote WebDriver
+    driver = webdriver.Remote(
+        command_executor=REMOTE_SELENIUM_URL,
+        desired_capabilities=capabilities
+    )
+
+    return driver
 
 
 BASE_URLS = [
