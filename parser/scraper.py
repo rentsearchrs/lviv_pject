@@ -20,39 +20,37 @@ SCRAPER_RUNNING = False
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 def setup_selenium():
-    print("🛠️ Setting up Selenium on BrowserStack...")
+    print("🛠️ Setting up Selenium...")
 
     try:
         REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
 
-        options = webdriver.FirefoxOptions()  # Use Firefox options
+        options = webdriver.FirefoxOptions()  
 
-        # ✅ Define BrowserStack capabilities
+        # ✅ Set BrowserStack capabilities
         options.set_capability("browserName", "Firefox")
         options.set_capability("browserVersion", "131.0")
-        options.set_capability("platformName", "Windows 10")
+        options.set_capability("platformName", "Windows 10")  
         options.set_capability("buildName", "browserstack-build-1")
         options.set_capability("projectName", "BrowserStack Sample")
         options.set_capability("seleniumVersion", "4.0.0")
 
-        # ✅ Fix: Extend BrowserStack session timeout
-        options.set_capability("browserstack.idleTimeout", 600)  # Extend idle timeout to 10 min
-        options.set_capability("browserstack.debug", True)  # Enable debugging
-        options.set_capability("browserstack.console", "verbose")  # Capture console logs
-        options.set_capability("browserstack.networkLogs", True)  # Capture network logs
+        # 🚀 Fix: Increase idle timeout (max 300 sec)
+        options.set_capability("idleTimeout", 300)  # Keep browser alive longer
 
-        # ✅ Set up remote WebDriver
+        # ✅ Start remote WebDriver session
         driver = webdriver.Remote(
             command_executor=REMOTE_SELENIUM_URL,
-            options=options
+            options=options  
         )
 
-        print("✅ Selenium WebDriver started successfully on BrowserStack!")
+        print("✅ Selenium WebDriver started successfully!")
         return driver
 
     except Exception as e:
         print(f"❌ Selenium setup failed: {e}")
         raise e
+
 
 BASE_URLS = [
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/lv/?currency=USD&page=",
@@ -224,9 +222,19 @@ async def scrape_and_save_images(driver, apartment_url, apartment_id, db: AsyncS
         print(f"Error saving images: {e}")
 
 
+async def keep_browser_alive(driver):
+    """Send periodic JavaScript commands to keep BrowserStack session active."""
+    while SCRAPER_RUNNING:
+        try:
+            driver.execute_script("window.scrollBy(0, 1);")  # Small scroll to trigger activity
+            print("🔄 Keep-alive signal sent to BrowserStack")
+        except Exception as e:
+            print(f"⚠️ Keep-alive error: {e}")
+            break
+        await asyncio.sleep(30)  # Send keep-alive every 30 seconds
 
 async def scrape_and_save(total_pages=5):
-    """Main scraper function that runs asynchronously."""
+    """Main scraper function."""
     global SCRAPER_RUNNING
 
     if SCRAPER_RUNNING:
@@ -234,9 +242,12 @@ async def scrape_and_save(total_pages=5):
         return
 
     print("✅ Scraper started...")
-    SCRAPER_RUNNING = True  # Set flag to prevent multiple runs
+    SCRAPER_RUNNING = True  
 
     driver = setup_selenium()
+
+    # ✅ Start keep-alive task
+    keep_alive_task = asyncio.create_task(keep_browser_alive(driver))
 
     try:
         async for db in get_db():
@@ -297,6 +308,6 @@ async def scrape_and_save(total_pages=5):
 
     finally:
         driver.quit()
-        SCRAPER_RUNNING = False  # ✅ Ensure flag is reset no matter what
+        SCRAPER_RUNNING = False  
+        keep_alive_task.cancel()  # Stop keep-alive loop
         print("✅ Scraper finished successfully!")
-
