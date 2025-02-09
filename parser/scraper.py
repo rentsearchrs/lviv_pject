@@ -20,35 +20,40 @@ SCRAPER_RUNNING = False
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 def setup_selenium():
-    print("🛠️ Setting up Selenium...")
+    print("🛠️ Setting up Selenium on BrowserStack...")
 
     try:
-        """Sets up Selenium to use BrowserStack remote WebDriver."""
         REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
 
-        # Use Selenium 4 syntax
-        options = webdriver.FirefoxOptions()  # Use appropriate options for your browser
+        options = webdriver.FirefoxOptions()  # Use Firefox options
 
-        # Define BrowserStack capabilities
+        # ✅ Define BrowserStack capabilities
         options.set_capability("browserName", "Firefox")
         options.set_capability("browserVersion", "131.0")
-        options.set_capability("platformName", "Windows 10")  # Update for Selenium 4
+        options.set_capability("platformName", "Windows 10")
         options.set_capability("buildName", "browserstack-build-1")
         options.set_capability("projectName", "BrowserStack Sample")
         options.set_capability("seleniumVersion", "4.0.0")
 
-        # ✅ Set up remote WebDriver (corrected)
+        # ✅ Fix: Extend BrowserStack session timeout
+        options.set_capability("browserstack.idleTimeout", 600)  # Extend idle timeout to 10 min
+        options.set_capability("browserstack.debug", True)  # Enable debugging
+        options.set_capability("browserstack.console", "verbose")  # Capture console logs
+        options.set_capability("browserstack.networkLogs", True)  # Capture network logs
+
+        # ✅ Set up remote WebDriver
         driver = webdriver.Remote(
             command_executor=REMOTE_SELENIUM_URL,
-            options=options  # ✅ Selenium 4 uses options instead of desired_capabilities
+            options=options
         )
 
-        print("✅ Selenium WebDriver started successfully!")
+        print("✅ Selenium WebDriver started successfully on BrowserStack!")
         return driver
 
     except Exception as e:
         print(f"❌ Selenium setup failed: {e}")
-        raise e  # Raise the error to see full details in logs
+        raise e
+
 BASE_URLS = [
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/lv/?currency=USD&page=",
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/prodazha-kvartir/lv/?currency=USD&page=",
@@ -83,7 +88,7 @@ async def scrape_titles_and_urls(driver, base_url, page_number):
         while True:
             # Scroll down to the bottom of the page
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            await asyncio.sleep(2)  # Wait for new elements to load
+            await asyncio.sleep(5)  # Wait for new elements to load
 
             # Collect the listings
             listings = driver.find_elements(By.CLASS_NAME, "css-1apmciz")
@@ -221,7 +226,7 @@ async def scrape_and_save_images(driver, apartment_url, apartment_id, db: AsyncS
 
 
 async def scrape_and_save(total_pages=5):
-    """Main scraper function that stops dynamically when `SCRAPER_RUNNING` is set to False."""
+    """Main scraper function that runs asynchronously."""
     global SCRAPER_RUNNING
 
     if SCRAPER_RUNNING:
@@ -244,12 +249,14 @@ async def scrape_and_save(total_pages=5):
                     return
 
                 for base_url in BASE_URLS:
+                    print(f"🔍 Fetching URL: {base_url}")
                     if not SCRAPER_RUNNING:
                         print("🚫 Scraper stopped while running.")
                         return  
 
                     url_results = []
                     for page in range(1, total_pages + 1):
+                        print(f"📄 Scraping page {page}...")
                         if not SCRAPER_RUNNING:
                             print("🚫 Scraper stopped while fetching pages.")
                             return 
@@ -261,9 +268,10 @@ async def scrape_and_save(total_pages=5):
 
                 # Process the scraped apartments
                 for base_url, apartments in results_by_url.items():
-                    print(f"Processing apartments for URL: {base_url}")
+                    print(f"🏡 Processing apartments for URL: {base_url}")
 
                     for apartment in apartments:
+                        print(f"🔎 Scraping apartment: {apartment['title']} - {apartment['url']}")
                         if not SCRAPER_RUNNING:
                             print("🚫 Scraper stopped while processing apartments.")
                             return  
@@ -275,6 +283,7 @@ async def scrape_and_save(total_pages=5):
 
                         if details:
                             try:
+                                print(f"💾 Saving to database: {details['title']}")
                                 saved_apartment = await crud.create_or_update_apartment(db, details)
                                 apartment_id = saved_apartment.id
                                 await scrape_and_save_images(driver, apartment['url'], apartment_id, db)
@@ -291,3 +300,4 @@ async def scrape_and_save(total_pages=5):
         driver.quit()
         SCRAPER_RUNNING = False
         print("✅ Scraper finished successfully!")
+
