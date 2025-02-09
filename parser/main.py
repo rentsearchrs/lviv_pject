@@ -505,14 +505,13 @@ async def reorder_images(apartment_id: int, order_updates: List[ImageOrderUpdate
     return {"message": "Image order updated successfully"}
 
 
-# Background scraping task (runs on startup)
 @app.on_event("startup")
 async def startup_event():
     """Runs when the FastAPI app starts."""
     await init_db()  # Ensure database is initialized
 
-    # Run the scraper in the background
-    asyncio.create_task(scraper.scrape_and_save(total_pages=1))
+    # ✅ Start scraper asynchronously in a non-blocking way
+    asyncio.create_task(scraper.scrape_and_save(total_pages=3))
 @asynccontextmanager
 async def get_async_db():
     """This helper context manager correctly handles async generator for database session."""
@@ -1292,23 +1291,20 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
 
 
-@app.get("/run_scraper")
-async def run_scraper():
-    """Runs the scraper asynchronously."""
-    asyncio.create_task(scraper.scrape_and_save(3))  # Runs in the background
-    return {"message": "Scraper started successfully!"}
-
-SCRAPER_WORKER_URL = "https://lviv-pject.vercel.app/run_scraper"
-
 @app.get("/start_scraping/")
-async def start_scraping():
-    """Trigger the background worker to start scraping."""
-    try:
-        response = requests.get(SCRAPER_WORKER_URL, timeout=5)  # Calls worker, prevents Vercel timeout
-        return {"message": "Scraping started on worker", "status": response.json()}
-    except Exception as e:
-        return {"error": str(e)}
+async def start_scraping(background_tasks: BackgroundTasks):
+    """Start the scraper asynchronously in the background."""
+    global scraper
 
+    if scraper.SCRAPER_RUNNING:
+        return {"message": "Scraper is already running"}
+
+    scraper.SCRAPER_RUNNING = True
+
+    # ✅ Offload to a separate task to prevent timeout
+    background_tasks.add_task(scraper.scrape_and_save, 3)  # Run for 3 pages
+
+    return {"message": "Scraping started in the background"}
 
 
 
