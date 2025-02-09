@@ -508,11 +508,11 @@ async def reorder_images(apartment_id: int, order_updates: List[ImageOrderUpdate
 # Background scraping task (runs on startup)
 @app.on_event("startup")
 async def startup_event():
-    # Await the init_db() function to initialize the database
-    await init_db()
-    
-    # Start scraping in the background
-    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Corrected to only pass total_pages
+    """Runs when the FastAPI app starts."""
+    await init_db()  # Ensure database is initialized
+
+    # Run the scraper in the background
+    asyncio.create_task(scraper.scrape_and_save(total_pages=1))
 @asynccontextmanager
 async def get_async_db():
     """This helper context manager correctly handles async generator for database session."""
@@ -1299,8 +1299,8 @@ async def start_scraping(background_tasks: BackgroundTasks):
         return {"message": "Scraper is already running"}
 
     scraper.SCRAPER_RUNNING = True
-    background_tasks.add_task(scraper.scrape_and_save, 1)  # Run scraper for 10 pages
-    return {"message": "Scraping started"}
+    background_tasks.add_task(asyncio.run, scraper.scrape_and_save(1))  # Run for 3 pages
+    return {"message": "Scraping started in the background"}
 
 @app.get("/stop_scraping/")
 async def stop_scraping():
