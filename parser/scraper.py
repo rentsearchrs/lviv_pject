@@ -17,37 +17,38 @@ from parser.filter_oblast import map_location_with_region
 semaphore = asyncio.Semaphore(50)
 # Global flag to control scraper dynamically
 SCRAPER_RUNNING = False
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 def setup_selenium():
     print("🛠️ Setting up Selenium...")
+
     try:
         """Sets up Selenium to use BrowserStack remote WebDriver."""
         REMOTE_SELENIUM_URL = "http://bohdansavyshchev_gh6ixa:Nn79kCkNpyEw7J4zwjAs@hub-cloud.browserstack.com/wd/hub"
 
-        # Define BrowserStack capabilities
-        capabilities = {
-            "browserName": "Firefox",         # Change to desired browser
-            "browserVersion": "131.0",        # Specify browser version
-            "os": "Windows",                  # Choose OS
-            "osVersion": "10",                 # Choose OS version
-            "buildName": "browserstack-build-1",
-            "projectName": "BrowserStack Sample",
-            "seleniumVersion": "4.0.0",
-        }
+        # Use Selenium 4 syntax
+        options = webdriver.FirefoxOptions()  # Use appropriate options for your browser
 
-        # Set up remote WebDriver
+        # Define BrowserStack capabilities
+        options.set_capability("browserName", "Firefox")
+        options.set_capability("browserVersion", "131.0")
+        options.set_capability("platformName", "Windows 10")  # Update for Selenium 4
+        options.set_capability("buildName", "browserstack-build-1")
+        options.set_capability("projectName", "BrowserStack Sample")
+        options.set_capability("seleniumVersion", "4.0.0")
+
+        # ✅ Set up remote WebDriver (corrected)
         driver = webdriver.Remote(
             command_executor=REMOTE_SELENIUM_URL,
-            desired_capabilities=capabilities
+            options=options  # ✅ Selenium 4 uses options instead of desired_capabilities
         )
 
-        # ✅ Fix: Move print statement outside of try block indentation
         print("✅ Selenium WebDriver started successfully!")
         return driver
 
     except Exception as e:
         print(f"❌ Selenium setup failed: {e}")
         raise e  # Raise the error to see full details in logs
-
 BASE_URLS = [
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/lv/?currency=USD&page=",
     "https://www.olx.ua/uk/nedvizhimost/kvartiry/prodazha-kvartir/lv/?currency=USD&page=",
