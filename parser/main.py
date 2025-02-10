@@ -1290,7 +1290,6 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
     await db.commit()
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
 
-
 @app.get("/start_scraping/")
 async def start_scraping():
     """Trigger BrowserStack Automate session"""
@@ -1322,10 +1321,14 @@ async def stop_scraping():
     if not scraper.SCRAPER_RUNNING:
         return {"message": "Scraper is not running"}
 
-    scraper.SCRAPER_RUNNING = False  # Set flag to stop scraper
-    scraper.BASE_URLS.clear()  # Clear BASE_URLS to ensure the scraper stops immediately
+    scraper.SCRAPER_RUNNING = False  # Stop scraper
+    scraper.BASE_URLS.clear()  # Clear BASE_URLS immediately
     return {"message": "Scraping stopped"}
 
+@app.on_event("startup")
+async def startup_event():
+    """Run scraper on startup in the background."""
+    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Run for 3 pages
 
 import uvicorn
 if __name__ == "__main__":
