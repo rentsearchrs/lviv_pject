@@ -1294,12 +1294,11 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 @app.get("/start_scraping/")
 async def start_scraping():
     """Trigger BrowserStack Automate session"""
-    session_id = scraper.start_browserstack_session()
-
-    if session_id:
-        return {"message": f"Scraping started on BrowserStack. Session ID: {session_id}"}
-    else:
-        return {"message": "Failed to start scraping session on BrowserStack"}
+    try:
+        scraper.scrape_and_send()
+        return {"message": "Scraping started successfully on BrowserStack"}
+    except Exception as e:
+        return {"error": f"Failed to start scraping: {e}"}
 
 @app.post("/webhook/")
 async def receive_scraping_results(request: Request):
