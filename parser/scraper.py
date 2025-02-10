@@ -8,13 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import asyncio
-import crud
+import parser.crud as crud
 import re
-from database import get_db
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_db
-from filter_oblast import map_location_with_region
+from parser.database import get_db
+from parser.filter_oblast import map_location_with_region
 semaphore = asyncio.Semaphore(50)
 BROWSERSTACK_USERNAME = "bohdansavyshchev_gh6ixa"
 BROWSERSTACK_ACCESS_KEY = "Nn79kCkNpyEw7J4zwjAs"
