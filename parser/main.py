@@ -1292,21 +1292,28 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
 
 
 @app.get("/start_scraping/")
-async def start_scraping(background_tasks: BackgroundTasks):
-    """Start the scraper asynchronously in the background."""
-    global scraper
+async def start_scraping():
+    """Trigger BrowserStack Automate session"""
+    session_id = scraper.start_browserstack_session()
 
-    if scraper.SCRAPER_RUNNING:
-        return {"message": "Scraper is already running"}
+    if session_id:
+        return {"message": f"Scraping started on BrowserStack. Session ID: {session_id}"}
+    else:
+        return {"message": "Failed to start scraping session on BrowserStack"}
 
-    scraper.SCRAPER_RUNNING = True
+@app.post("/webhook/")
+async def receive_scraping_results(request: Request):
+    """Receive data from BrowserStack Automate once scraping completes"""
+    data = await request.json()
 
-    # ✅ Offload to a separate task to prevent timeout
-    background_tasks.add_task(scraper.scrape_and_save, 3)  # Run for 3 pages
+    if "scraped_data" in data:
+        print(f"✅ Received scraped data: {data['scraped_data']}")
 
-    return {"message": "Scraping started in the background"}
-
-
+        # Store in database (add your DB logic here)
+        
+        return {"message": "Data received successfully"}
+    
+    return {"message": "Invalid webhook data"}, 400
 
 @app.get("/stop_scraping/")
 async def stop_scraping():
