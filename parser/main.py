@@ -1291,44 +1291,53 @@ async def verify_ad(apartment_id: int, decision: str, db: AsyncSession = Depends
     return {"message": f"Apartment {apartment_id} marked as {decision}"}
 
 @app.get("/start_scraping/")
-async def start_scraping():
-    """Trigger BrowserStack Automate session"""
-    try:
-        scraper.scrape_and_send()
-        return {"message": "Scraping started successfully on BrowserStack"}
-    except Exception as e:
-        return {"error": f"Failed to start scraping: {e}"}
+async def start_scraping(background_tasks: BackgroundTasks):
+    """Trigger the scraper asynchronously"""
+    global scraper
 
-@app.post("/webhook/")
-async def receive_scraping_results(request: Request):
-    """Receive data from BrowserStack Automate once scraping completes"""
-    data = await request.json()
+    if scraper.SCRAPER_RUNNING:
+        return {"message": "🚫 Scraper is already running!"}
 
-    if "scraped_data" in data:
-        print(f"✅ Received scraped data: {data['scraped_data']}")
-
-        # Store in database (add your DB logic here)
-        
-        return {"message": "Data received successfully"}
+    scraper.SCRAPER_RUNNING = True
+    background_tasks.add_task(scraper.scrape_and_save, 3)  # Runs for 3 pages (Adjust as needed)
     
-    return {"message": "Invalid webhook data"}, 400
+    return {"message": "✅ Scraping started successfully!"}
 
 @app.get("/stop_scraping/")
 async def stop_scraping():
-    """Stop the scraper dynamically."""
+    """Stop the scraper dynamically"""
     global scraper
 
     if not scraper.SCRAPER_RUNNING:
-        return {"message": "Scraper is not running"}
+        return {"message": "🚫 Scraper is not running!"}
 
     scraper.SCRAPER_RUNNING = False  # Stop scraper
-    scraper.BASE_URLS.clear()  # Clear BASE_URLS immediately
-    return {"message": "Scraping stopped"}
+    scraper.BASE_URLS.clear()  # Prevent further requests
+    return {"message": "🛑 Scraping stopped successfully!"}
+
+@app.post("/webhook/")
+async def receive_scraping_results(request: Request):
+    """Receive data from BrowserStack Automate when scraping completes"""
+    try:
+        data = await request.json()
+
+        if "scraped_data" in data:
+            print(f"✅ Received scraped data: {data['scraped_data']}")
+
+            # TODO: Store data in your database or process it further
+
+            return {"message": "✅ Data received successfully"}
+    
+        return {"message": "❌ Invalid webhook data"}, 400
+    
+    except Exception as e:
+        print(f"❌ Error processing webhook: {e}")
+        return {"message": "❌ Webhook processing error"}, 500
 
 @app.on_event("startup")
 async def startup_event():
-    """Run scraper on startup in the background."""
-    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Run for 3 pages
+    """Optionally start the scraper on server startup"""
+    asyncio.create_task(scraper.scrape_and_save(total_pages=1))  # Runs for 1 page
 
 import uvicorn
 if __name__ == "__main__":
